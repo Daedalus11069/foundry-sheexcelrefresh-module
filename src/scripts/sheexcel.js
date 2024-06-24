@@ -3,6 +3,7 @@ Hooks.once('init', async function() {
 
     // Register a new sheet class
     Actors.registerSheet("sheexcel", SheexcelActorSheet, {
+        label: "Sheexcel",
         types: ["character"],
         makeDefault: false
     });

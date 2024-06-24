@@ -24,5 +24,6 @@
             "name": "English",
             "path": "lang/en.json"
         }
-    ]
+    ],
+    "download": "https://github.com/muhahahahe/foundry-sheexcel-module/raw/main/download/sheexcel.zip"
   }

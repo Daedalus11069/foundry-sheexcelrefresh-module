@@ -4,6 +4,8 @@
 
 The Sheexcel Module for Foundry Virtual Tabletop (VTT) seamlessly integrates Google Sheets into your game sessions, allowing you to use spreadsheets as part of your character sheets within Foundry VTT. With Sheexcel, you can manage your game data in real-time, directly from Google Sheets, enhancing your gameplay experience with dynamic and interactive spreadsheets.
 
+**WIP** - preserving your systems default sheet in its own tab
+
 ## Features
 
 - **Real-Time Data Sync**: Keep your game data synchronized between Foundry VTT and Google Sheets.
@@ -15,8 +17,8 @@ The Sheexcel Module for Foundry Virtual Tabletop (VTT) seamlessly integrates Goo
 
 To install the Sheexcel Module, follow these steps:
 
-1. Copy this link: https://github.com/muhahahahe/foundry-sheexcel-module/src/module.json
-2. Open Foundry VTT and navigate to the "Add-On Modules" section.
+1. Copy this link: https://raw.githubusercontent.com/muhahahahe/foundry-sheexcel-module/main/src/module.json
+2. Open Foundry VTT Setup and navigate to the "Add-On Modules" section.
 3. Click on "Install Module", paste the link in the bottom field and hit the "Install" button.
 
 ## Usage
@@ -24,9 +26,9 @@ To install the Sheexcel Module, follow these steps:
 After installing the Sheexcel Module, you can start using it by following these steps:
 
 1. Create or open a Character Sheet.
-2. Navigate to the "Details" tab where you'll find a new field for entering a Google Sheet URL.
+2. Open the Sheet Configuration and select Sheexcel for "This Sheet".
+2. Navigate to the "Spreedsheet" tab where you'll find a new field for entering a Google Sheet URL.
 3. Enter the URL of your Google Spreadsheet and click the update button.
-4. The Sheexcel Module will automatically load the spreadsheet within the character sheet.
 
 ## Customization
 
