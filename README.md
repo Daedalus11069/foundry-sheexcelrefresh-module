@@ -11,7 +11,6 @@ The Sheexcel Module for Foundry Virtual Tabletop (VTT) seamlessly integrates Goo
 - **Real-Time Data Sync**: Keep your game data synchronized between Foundry VTT and Google Sheets.
 - **Customizable Sheets**: Utilize Google Sheets' extensive formatting options directly within Foundry VTT.
 - **Easy Integration**: Simple setup process to integrate Google Sheets URLs into your game entities.
-- **Responsive Design**: Automatically adjusts to fit various screen sizes and resolutions.
 
 ## Installation
 
