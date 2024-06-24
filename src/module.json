@@ -1,0 +1,28 @@
+{
+    "id": "sheexcel",
+    "title": "Sheexcel Module - Excel in your Sheets",
+    "description": "A simple module that brings excel to your sheets.",
+    "authors": [
+        {
+            "name": "muhahahahe"
+        }
+    ],
+    "version": "0.0.1",
+    "compatibility": {
+        "minimum": "11",
+        "verified": "11"
+    },
+    "esmodules": [
+        "scripts/sheexcel.js"
+    ],
+    "styles": [
+        "styles/sheexcel.css"
+    ],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "lang/en.json"
+        }
+    ]
+  }

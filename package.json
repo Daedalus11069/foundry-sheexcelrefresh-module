@@ -1,0 +1,17 @@
+{
+  "name": "foundry-sheexcel-module",
+  "version": "1.0.0",
+  "title": "SheExcel Module",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {},
+  "engines": {
+    "node": ">= 18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muhahahahe/foundry-sheexcel-module.git"
+  },
+  "author": "muhahahahe",
+  "license": "MIT"
+}
