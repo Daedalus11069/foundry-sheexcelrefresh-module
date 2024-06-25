@@ -31,8 +31,8 @@ After installing the Sheexcel Module, you can start using it by following these 
 
 1. Create or open a Character Sheet.
 2. Open the Sheet Configuration and select Sheexcel for "This Sheet".
-2. Navigate to the "Spreedsheet" tab where you'll find a new field for entering a Google Sheet URL.
-3. Enter the URL of your Google Spreadsheet and click the update button.
+3. Navigate to the "Spreedsheet" tab where you'll find a new field for entering a Google Sheet URL.
+4. Enter the URL of your Google Spreadsheet (*IMPORTANT!* This needs to be a generated share link!) and click the update button.
 
 ## Customization
 
