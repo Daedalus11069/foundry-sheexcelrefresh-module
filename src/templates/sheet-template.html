@@ -10,11 +10,13 @@
         <div class="tab attributes" data-group="primary" data-tab="attributes">
             <!-- Add your default actor attributes here -->
         </div>
-        <div class="tab spreadsheet" data-group="primary" data-tab="spreadsheet" style="height: 100%;">
+        <div class="tab spreadsheet" data-group="primary" data-tab="spreadsheet">
             <div class="form-group">
                 <label for="sheetUrl">Google Sheet URL:</label>
                 <input type="text" name="sheetUrl" value="{{sheetUrl}}">
                 <button class="update-sheet">Update Sheet</button>
+                <input type="range" id="zoom-slider" min="50" max="150" value="100" step="10">
+                <span id="zoom-value">100%</span>
             </div>
             <div class="sheet-container">
                 {{#if sheetUrl}}

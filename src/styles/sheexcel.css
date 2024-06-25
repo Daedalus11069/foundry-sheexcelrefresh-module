@@ -1,14 +1,38 @@
-/* .sheexcel-sheet .sheet-header {}
+.sheexcel-sheet {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
 
-.sheexcel-sheet .sheet-tabs {} */
+.sheexcel-sheet .sheet-header {
+    flex: 0 0 auto;
+}
+
+.sheexcel-sheet .sheet-tabs {
+    flex: 0 0 auto;
+}
 
 .sheexcel-sheet .sheet-body {
-    height: calc(100% - 70px);
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.sheexcel-sheet .tab.spreadsheet {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.sheexcel-sheet .form-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .sheexcel-sheet .sheet-container {
-    width: 100%;
-    height: calc(100% - 60px);
+    flex: 1;
     overflow: hidden;
 }
 
@@ -16,4 +40,13 @@
     width: 100%;
     height: 100%;
     border: none;
+}
+
+.sheexcel-sheet #zoom-slider {
+    width: 100px;
+}
+
+.sheexcel-sheet #zoom-value {
+    min-width: 40px;
+    text-align: right;
 }
