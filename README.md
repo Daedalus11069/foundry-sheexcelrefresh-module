@@ -16,6 +16,7 @@ The Sheexcel Module for Foundry Virtual Tabletop (VTT) seamlessly integrates Goo
 ## Known Issues
 
 - **Resizing**: While minimizing the sheet, if you drag too fast you will hover over the spreadsheet and resizing will stop. Solution: Drag slowly.
+- **Not Editable**: Your share link needs to have edit permissions to be able to edit the spreadsheet.
 
 ## Installation
 
