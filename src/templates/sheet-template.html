@@ -1,30 +1,29 @@
 <form class="{{cssClass}} sheexcel-sheet" autocomplete="off">
-    <header class="sheet-header">
+    <header class="sheexcel-sheet-header">
         <h1>{{actor.name}}</h1>
     </header>
-    <nav class="sheet-tabs tabs" data-group="primary">
-        <a class="item" data-tab="attributes">Attributes</a>
-        <a class="item" data-tab="spreadsheet">Spreadsheet</a>
-    </nav>
-    <section class="sheet-body">
-        <div class="tab attributes" data-group="primary" data-tab="attributes">
-            <!-- Add your default actor attributes here -->
-        </div>
-        <div class="tab spreadsheet" data-group="primary" data-tab="spreadsheet">
-            <div class="form-group">
-                <label for="sheetUrl">Google Sheet URL:</label>
+    <section class="sheexcel-sheet-body">
+        <div class="sheexcel-form-group">
+            <div class="sheexcel-sheet-url-container">
+                <label for="sheetUrl">{{localize 'SHEEXCEL.GoogleSheetURL'}}</label>
                 <input type="text" name="sheetUrl" value="{{sheetUrl}}">
-                <button class="update-sheet">Update Sheet</button>
-                <input type="range" id="zoom-slider" min="25" max="175" value="100" step="5">
-                <span id="zoom-value">100%</span>
+                <button class="sheexcel-update-sheet">{{localize 'SHEEXCEL.UpdateSheet'}}</button>
             </div>
-            <div class="sheet-container">
-                {{#if sheetUrl}}
-                    <iframe src="{{sheetUrl}}?embedded=true&rm=minimal" frameborder="0"></iframe>
-                {{else}}
-                    <p>No sheet URL set. Enter a Google Sheet URL and click Update Sheet.</p>
-                {{/if}}
+            <div class="sheexcel-zoom-container">
+                <input type="range" id="sheexcel-zoom-slider" min="25" max="175" value="{{zoomLevel}}" step="5">
+                <span id="sheexcel-zoom-value">{{zoomLevel}}%</span>
             </div>
+            <label class="sheexcel-hide-menu-label">
+                <input type="checkbox" id="sheexcel-hide-menu" {{#if hideMenu}}checked{{/if}}>
+                <span>{{localize 'SHEEXCEL.HideMenu'}}</span>
+            </label>
+        </div>
+        <div class="sheexcel-sheet-container">
+            {{#if sheetUrl}}
+                <iframe class="sheexcel-iframe" src="{{sheetUrl}}?embedded=true&rm={{#if hideMenu}}minimal{{else}}embedded{{/if}}" frameborder="0"></iframe>
+            {{else}}
+                <p>{{localize 'SHEEXCEL.NoSheetURL'}}</p>
+            {{/if}}
         </div>
     </section>
 </form>

@@ -8,7 +8,7 @@
             "discord": "muhahahahe"
         }
     ],
-    "version": "0.1.0",
+    "version": "0.2.0",
     "compatibility": {
         "minimum": "11",
         "verified": "11",
@@ -29,5 +29,5 @@
     ],
     "url": "https://github.com/muhahahahe/foundry-sheexcel-module",
     "manifest": "https://raw.githubusercontent.com/muhahahahe/foundry-sheexcel-module/main/src/module.json",
-    "download": "https://github.com/muhahahahe/foundry-sheexcel-module/releases/download/0.1.0/sheexcel_0.1.0.zip"
+    "download": "https://github.com/muhahahahe/foundry-sheexcel-module/releases/download/0.2.0/sheexcel_0.2.0.zip"
 }

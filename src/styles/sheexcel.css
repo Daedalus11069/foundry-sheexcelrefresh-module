@@ -4,49 +4,100 @@
     height: 100%;
 }
 
-.sheexcel-sheet .sheet-header {
+.sheexcel-sheet .sheexcel-sheet-header {
     flex: 0 0 auto;
+    padding: 5px 10px;
+    border-bottom: 1px solid #ddd;
 }
 
-.sheexcel-sheet .sheet-tabs {
-    flex: 0 0 auto;
-}
-
-.sheexcel-sheet .sheet-body {
+.sheexcel-sheet .sheexcel-sheet-body {
     flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
-.sheexcel-sheet .tab.spreadsheet {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.sheexcel-sheet .form-group {
+.sheexcel-sheet .sheexcel-form-group {
     display: flex;
     align-items: center;
     gap: 10px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
 }
 
-.sheexcel-sheet .sheet-container {
+.sheexcel-sheet .sheexcel-sheet-container {
     flex: 1;
     overflow: hidden;
 }
 
-.sheexcel-sheet iframe {
+.sheexcel-sheet .sheexcel-iframe {
     width: 100%;
     height: 100%;
     border: none;
 }
 
-.sheexcel-sheet #zoom-slider {
+.sheexcel-sheet .sheexcel-sheet-url-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+}
+
+.sheexcel-sheet .sheexcel-sheet-url-container label {
+    min-width: 120px;
+}
+
+.sheexcel-sheet .sheexcel-sheet-url-container input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.sheexcel-sheet .sheexcel-sheet-url-container .sheexcel-update-sheet {
+    white-space: nowrap;
+    padding: 5px 10px;
+    max-width: 180px;
+}
+
+.sheexcel-sheet .sheexcel-zoom-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 190px;
+}
+
+.sheexcel-sheet #sheexcel-zoom-slider {
     width: 100px;
 }
 
-.sheexcel-sheet #zoom-value {
+.sheexcel-sheet #sheexcel-zoom-value {
     min-width: 40px;
-    text-align: right;
+    text-align: left;
+}
+
+.sheexcel-sheet .sheexcel-hide-menu-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .sheexcel-sheet .sheexcel-form-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sheexcel-sheet .sheexcel-sheet-url-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sheexcel-sheet .sheexcel-sheet-url-container label {
+        min-width: auto;
+    }
+
+    .sheexcel-sheet .sheexcel-zoom-container {
+        min-width: 20px;
+    }
 }

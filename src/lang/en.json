@@ -1,0 +1,10 @@
+{
+    "SHEEXCEL": {
+        "CharacterSheet": "Character Sheet",
+        "Spreadsheet": "Spreadsheet",
+        "GoogleSheetURL": "Google Sheet URL:",
+        "UpdateSheet": "Update Sheet",
+        "HideMenu": "Hide Menu",
+        "NoSheetURL": "No sheet URL set. Enter a Google Sheet URL and click Update Sheet."
+    }
+}
