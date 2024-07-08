@@ -10,6 +10,7 @@ The Sheexcel Module for Foundry Virtual Tabletop (VTT) seamlessly integrates Goo
 - **Customizable Sheets**: Utilize Google Sheets' extensive formatting options directly within Foundry VTT.
 - **Easy Integration**: Simple setup process to integrate Google Sheets URLs into your game entities.
 - **Zoom**: Zoom in and out of the spreadsheet without effecting any zoom of your Foundry VTT client.
+- **Makro Capability**: Use defined cells as values/modifiers within your makros.
 
 ## Known Issues
 
@@ -33,6 +34,70 @@ After installing the Sheexcel Module, you can start using it by following these 
 2. Open the Sheet Configuration and select Sheexcel for "This Sheet".
 3. Navigate to the "Spreedsheet" tab where you'll find a new field for entering a Google Sheet URL.
 4. Enter the URL of your Google Spreadsheet (*IMPORTANT!* This needs to be a generated share link!) and click the update button.
+
+## References
+
+1. Manage cell values with the help of the sheets sidebar.
+2. Create a makro with the type script.
+Example Makro:
+- In the example the actor has a stored cell with the keyword `WeaponMod`
+```JavaScript
+// Get the selected token
+let selectedToken = canvas.tokens.controlled[0];
+
+if (!selectedToken) {
+  ui.notifications.warn("Please select a token first.");
+  return;
+}
+
+let actor = selectedToken.actor;
+
+if (!actor) {
+  ui.notifications.error("The selected token has no associated actor.");
+  return;
+}
+
+// Get the "WeaponMod" value from Sheexcel
+let reference = game.sheexcel.getSheexcelValue(actor.id, "WeaponMod");
+if (!reference.value) {
+  ui.notifications.warn("No 'WeaponMod' value found in the Sheexcel sheet. Make sure you have a cell reference with the keyword 'WeaponMod'.");
+  return;
+}
+
+// Parse the roll value and create a Roll object
+let roll = new Roll(`1d20 + ${reference.value.toString()}`);
+
+// Execute the roll
+roll.evaluate().then(() => {
+  // Create the chat message content with detailed roll information
+  let messageContent = `<h2>${actor.name} makes an attack roll!</h2>`;
+  
+  // Add roll formula
+  messageContent += `<p><strong>Roll Formula:</strong> ${roll.formula}</p>`;
+  
+  // Add individual term results
+  messageContent += `<p><strong>Term Results:</strong></p><ul>`;
+  roll.terms.forEach(term => {
+    if (term instanceof Die) {
+      messageContent += `<li>Dice (${term.number}d${term.faces}): ${term.total}</li>`;
+    } else if (term instanceof NumericTerm) {
+      messageContent += `<li>Modifier: ${term.number}</li>`;
+    }
+  });
+  messageContent += `</ul>`;
+  
+  // Add total
+  messageContent += `<p><strong>Total:</strong> ${roll.total}</p>`;
+
+  // Create a chat message
+  ChatMessage.create({
+    user: game.user.id,
+    speaker: ChatMessage.getSpeaker({token: selectedToken}),
+    content: messageContent,
+    rolls: roll
+  });
+});
+```
 
 ## Customization
 
