@@ -5,6 +5,11 @@
         "GoogleSheetURL": "Google Sheet URL:",
         "UpdateSheet": "Update Sheet",
         "HideMenu": "Hide Menu",
-        "NoSheetURL": "No sheet URL set. Enter a Google Sheet URL and click Update Sheet."
+        "NoSheetURL": "No sheet URL set. Enter a Google Sheet URL and click Update Sheet.",
+        "Remove": "Remove",
+        "Cell": "Cell (e.g., A1)",
+        "Keyword": "Keyword",
+        "AddReference": "Add Reference",
+        "Sidebar": "Sidebar"
     }
 }

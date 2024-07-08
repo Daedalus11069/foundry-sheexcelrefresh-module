@@ -2,11 +2,12 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
 }
 
 .sheexcel-sheet .sheexcel-sheet-header {
     flex: 0 0 auto;
-    padding: 5px 10px;
+    padding: 5px 265px 0px 0px;
     border-bottom: 1px solid #ddd;
 }
 
@@ -15,6 +16,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .sheexcel-sheet .sheexcel-form-group {
@@ -23,18 +25,77 @@
     gap: 10px;
     padding: 10px;
     background-color: #f5f5f5;
+    color: #151515;
     border-bottom: 1px solid #ddd;
 }
 
-.sheexcel-sheet .sheexcel-sheet-container {
+.sheexcel-sheet .sheexcel-main-content {
     flex: 1;
     overflow: hidden;
+    position: relative;
+}
+
+.sheexcel-sheet .sheexcel-sheet-container {
+    width: 100%;
+    height: 100%;
 }
 
 .sheexcel-sheet .sheexcel-iframe {
     width: 100%;
     height: 100%;
     border: none;
+}
+
+.sheexcel-sheet .sheexcel-sidebar {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    bottom: 0;
+    width: 250px;
+    background-color: #f0f0f0;
+    color: #151515;
+    padding: 10px;
+    transition: transform 0.3s ease;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.sheexcel-sheet .sheexcel-sidebar.collapsed {
+    transform: translateX(calc(100% + 20px));
+}
+
+.sheexcel-sheet .sheexcel-sidebar-toggle {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 250px;
+    background: #eeeeee;
+    color: #151515;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.sheexcel-sheet .sheexcel-references {
+    overflow-x: hidden;
+    overflow-y: auto;
+    white-space: nowrap;
+    height: 100%;
+}
+
+.sheexcel-sheet .sheexcel-cell-reference {
+    display: flex;
+    flex-direction: column;
+    padding-top: 5px;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.sheexcel-sheet .sheexcel-add-reference {
+    margin-bottom: 0px;
 }
 
 .sheexcel-sheet .sheexcel-sheet-url-container {

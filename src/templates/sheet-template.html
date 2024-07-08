@@ -18,12 +18,28 @@
                 <span>{{localize 'SHEEXCEL.HideMenu'}}</span>
             </label>
         </div>
-        <div class="sheexcel-sheet-container">
-            {{#if sheetUrl}}
-                <iframe class="sheexcel-iframe" src="{{sheetUrl}}?embedded=true&rm={{#if hideMenu}}minimal{{else}}embedded{{/if}}" frameborder="0"></iframe>
-            {{else}}
-                <p>{{localize 'SHEEXCEL.NoSheetURL'}}</p>
-            {{/if}}
+        <div class="sheexcel-main-content">
+            <div class="sheexcel-sheet-container">
+                {{#if sheetUrl}}
+                    <iframe class="sheexcel-iframe" src="{{sheetUrl}}?embedded=true&rm={{#if hideMenu}}minimal{{else}}embedded{{/if}}" frameborder="0"></iframe>
+                {{else}}
+                    <p>{{localize 'SHEEXCEL.NoSheetURL'}}</p>
+                {{/if}}
+            </div>
         </div>
     </section>
+    <button class="sheexcel-sidebar-toggle">{{#if sidebarCollapsed}}◀{{else}}▶{{/if}} {{localize 'SHEEXCEL.Sidebar'}}</button>
+    <div class="sheexcel-sidebar {{#if sidebarCollapsed}}collapsed{{/if}}">
+        <h3>Cell References</h3>
+        <div class="sheexcel-references">
+            {{#each cellReferences}}
+            <div class="sheexcel-cell-reference">
+                <input type="text" class="sheexcel-cell" value="{{this.cell}}" placeholder="Cell (e.g., A1)">
+                <input type="text" class="sheexcel-keyword" value="{{this.keyword}}" placeholder="Keyword">
+                <button class="sheexcel-remove-reference">{{localize 'SHEEXCEL.Remove'}}</button>
+            </div>
+            {{/each}}
+        </div>
+        <button class="sheexcel-add-reference">Add Reference</button>
+    </div>
 </form>
