@@ -2,14 +2,18 @@
     "SHEEXCEL": {
         "CharacterSheet": "Character Sheet",
         "Spreadsheet": "Spreadsheet",
-        "GoogleSheetURL": "Google Sheet URL:",
+        "GoogleSheetURL": "Google Sheet URL",
         "UpdateSheet": "Update Sheet",
         "HideMenu": "Hide Menu",
-        "NoSheetURL": "No sheet URL set. Enter a Google Sheet URL and click Update Sheet.",
+        "NoSheetURL": "No sheet URL set. Enter a Google Sheet URL in the settings sidebar and click Update Sheet.",
+        "References": "References",
         "Remove": "Remove",
-        "Cell": "Cell (e.g., A1)",
+        "Cell": "Cell",
         "Keyword": "Keyword",
         "AddReference": "Add Reference",
-        "Sidebar": "Sidebar"
+        "Settings": "Settings",
+        "Warn": {
+            "NoSheetURL": "No sheet URL set."
+        }
     }
 }
