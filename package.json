@@ -1,6 +1,6 @@
 {
   "name": "foundry-sheexcel-module",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "title": "SheExcel Module",
   "type": "module",
   "main": "index.js",
