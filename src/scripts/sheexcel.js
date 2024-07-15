@@ -1,5 +1,4 @@
 Hooks.once("init", async function () {
-    console.log("Sheexcel | Initializing Sheexcel Module");
 
     Actors.registerSheet("sheexcel", SheexcelActorSheet, {
         label: "Sheexcel",
@@ -31,10 +30,6 @@ Hooks.once("init", async function () {
             return null;
         }
     }
-});
-
-Hooks.once("ready", async function () {
-    console.log("Sheexcel | Ready");
 });
 
 class SheexcelActorSheet extends ActorSheet {
@@ -88,8 +83,6 @@ class SheexcelActorSheet extends ActorSheet {
             }
             return cellRef;
         });
-
-        console.log(data.adjustedReferences)
         return data;
     }
     
@@ -175,7 +168,6 @@ class SheexcelActorSheet extends ActorSheet {
     }
 
     async _onUpdateSheet(event) {
-        console.log("update sheet");
         event.preventDefault();
         let sheetUrl = this.element.find('input[name="sheetUrl"]').val();
 
@@ -202,7 +194,6 @@ class SheexcelActorSheet extends ActorSheet {
     }
 
     async _fetchSheetNames() {
-        console.log("fetching sheet names");
         if (!this._sheetId) return;
     
         const url = `https://docs.google.com/spreadsheets/d/${this._sheetId}/edit`;
@@ -239,7 +230,6 @@ class SheexcelActorSheet extends ActorSheet {
     }
 
     _onAddReference(event) {
-        console.log("add reference");
         event.preventDefault();
         this._fetchSheetNames();
         this._cellReferences.push({ sheet: this._currentSheetName, cell: "", keyword: "", value: "" });
@@ -265,7 +255,6 @@ class SheexcelActorSheet extends ActorSheet {
     }
 
     _onRemoveReference(event) {
-        console.log("remove reference");
         event.preventDefault();
         const parent = event.currentTarget.parentElement.parentElement;
 
@@ -277,14 +266,12 @@ class SheexcelActorSheet extends ActorSheet {
     }
 
     _onSaveReference(event) {
-        console.log("save reference");
         event.preventDefault();
         this._refetchAllCellValues();
         this._saveFlags();
     }
 
     async _fetchCellValue(sheetId, sheetName, cellRef) {
-        console.log("fetching cell value");
         if (cellRef === "") return "";
 
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(
@@ -301,13 +288,11 @@ class SheexcelActorSheet extends ActorSheet {
     }
 
     async _onCellReferenceChange(event) {
-        console.log("Cell changed");
         const index = $(event.currentTarget).closest(".sheexcel-reference-cell").index();
         if (event.currentTarget.id === "sheexcel-cell") {
             this._cellReferences[index].cell = event.currentTarget.value;
         } else {
             this._cellReferences[index].sheet = event.target.value;
-            console.log(this._cellReferences[index].sheet);
         }
 
         if (this._cellReferences[index].cell && this._cellReferences[index].cell.length && this._cellReferences[index].sheet) {
@@ -321,7 +306,6 @@ class SheexcelActorSheet extends ActorSheet {
     }
 
     _onKeywordReferenceChange(event) {
-        console.log("Keyword changed");
         const index = $(event.currentTarget).closest(".sheexcel-reference-cell").index();
         this._cellReferences[index].keyword = event.currentTarget.value;
         const ref = foundry.utils.duplicate(this.actor.system.sheexcel);
@@ -330,7 +314,6 @@ class SheexcelActorSheet extends ActorSheet {
     }
 
     async _updateCellValue(i) {
-        console.log("Updating cell value", i);
         const ref = this._cellReferences[i]
         const value = await this._fetchCellValue(this._sheetId, ref.sheet || this._currentSheetName, ref.cell);
         this._cellReferences[i].value = value;
@@ -386,6 +369,7 @@ class SheexcelActorSheet extends ActorSheet {
     }
 
     async _saveFlags() {
+        if (!game.user.isGM || !this.actor.isOwner) return;
         const flags = {
             zoomLevel: this._currentZoomLevel,
             sidebarCollapsed: this._sidebarCollapsed,
@@ -393,7 +377,6 @@ class SheexcelActorSheet extends ActorSheet {
             currentSheetName: this._currentSheetName,
             sheetNames: this._sheetNames
         };
-
         await this.actor.update({
             'flags.sheexcel': flags
         });
