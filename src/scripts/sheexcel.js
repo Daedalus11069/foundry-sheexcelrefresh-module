@@ -79,7 +79,7 @@ class SheexcelActorSheet extends ActorSheet {
             }, {});
             cellRef.sheetNames = sheetNames
             if (cellRef.value.length > 10) {
-                cellRef.value = cellRef.value.slice(0, 10);
+                cellRef.value = foundry.utils.duplicate(cellRef.value).slice(0, 10);
             }
             return cellRef;
         });
@@ -369,7 +369,7 @@ class SheexcelActorSheet extends ActorSheet {
     }
 
     async _saveFlags() {
-        if (!game.user.isGM || !this.actor.isOwner) return;
+        if (!game.user.isGM && !this.actor.isOwner) return;
         const flags = {
             zoomLevel: this._currentZoomLevel,
             sidebarCollapsed: this._sidebarCollapsed,
