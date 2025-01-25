@@ -17,21 +17,57 @@ Hooks.once("init", async function () {
     }
   };
 
+  Actor.prototype._fetchCellValue = async function (sheetName, cellRef) {
+    const sheetId = this.getFlag("sheexcelrefresh", "sheetId");
+    if (cellRef === "") return "";
+
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(
+      sheetName
+    )}&range=${cellRef}`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const text = (await response.text()).trim().replace(/^"(.*)"$/, "$1");
+    return text;
+  };
+
+  Actor.prototype.refreshCellValues = async function () {
+    const actor = game.actors.get(actorId);
+    if (actor && actor.system.sheexcelrefresh) {
+      for await (const ref of this.getFlag(
+        "sheexcelrefresh",
+        "cellReferences"
+      ) || []) {
+        if (ref.keyword && ref.value !== undefined) {
+          this.system.sheexcelrefresh[ref.keyword] = await this._fetchCellValue(
+            ref.sheet,
+            ref.cell
+          );
+        }
+      }
+      return null;
+    }
+    return null;
+  };
+
   game.sheexcelrefresh = {
     getSheexcelValue: (actorId, keyword) => {
       const actor = game.actors.get(actorId);
       if (actor && actor.system.sheexcelrefresh) {
         return {
-          value: actor.sheet.getSheexcelValue(keyword),
+          value: actor.system.sheexcelrefresh[keyword] || null,
           actor: actor
         };
       }
       return null;
     },
-    refetchAllCellValues: async () => {
+    refreshAllCellValues: async () => {
       const actor = game.actors.get(actorId);
       if (actor && actor.system.sheexcelrefresh) {
-        await actor.sheet._refetchAllCellValues();
+        await actor.refreshCellValues();
         return null;
       }
       return null;
