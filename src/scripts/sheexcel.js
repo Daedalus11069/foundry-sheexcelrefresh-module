@@ -28,6 +28,14 @@ Hooks.once("init", async function () {
                 }
             }
             return null;
+        },
+        refetchAllCellValues: async () => {
+            const actor = game.actors.get(actorId);
+            if (actor && actor.system.sheexcel) {
+                await actor.sheet._refetchAllCellValues()
+                return null;
+            }
+            return null;
         }
     }
 });
