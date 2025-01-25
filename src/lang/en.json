@@ -1,19 +1,19 @@
 {
-    "SHEEXCEL": {
-        "CharacterSheet": "Character Sheet",
-        "Spreadsheet": "Spreadsheet",
-        "GoogleSheetURL": "Google Sheet URL",
-        "UpdateSheet": "Update Sheet",
-        "HideMenu": "Hide Menu",
-        "NoSheetURL": "No sheet URL set. Enter a Google Sheet URL in the settings sidebar and click Update Sheet.",
-        "References": "References",
-        "Remove": "Remove",
-        "Cell": "Cell",
-        "Keyword": "Keyword",
-        "AddReference": "Add Reference",
-        "Settings": "Settings",
-        "Warn": {
-            "NoSheetURL": "No sheet URL set."
-        }
+  "SHEEXCELREFRESH": {
+    "CharacterSheet": "Character Sheet",
+    "Spreadsheet": "Spreadsheet",
+    "GoogleSheetURL": "Google Sheet URL",
+    "UpdateSheet": "Update Sheet",
+    "HideMenu": "Hide Menu",
+    "NoSheetURL": "No sheet URL set. Enter a Google Sheet URL in the settings sidebar and click Update Sheet.",
+    "References": "References",
+    "Remove": "Remove",
+    "Cell": "Cell",
+    "Keyword": "Keyword",
+    "AddReference": "Add Reference",
+    "Settings": "Settings",
+    "Warn": {
+      "NoSheetURL": "No sheet URL set."
     }
+  }
 }

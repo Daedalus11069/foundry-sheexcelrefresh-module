@@ -60,7 +60,7 @@ class SheexcelActorSheet extends ActorSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["sheet", "actor", "sheexcelrefresh"],
-      template: "modules/sheexcel/templates/sheet-template.html",
+      template: "modules/sheexcelrefresh/templates/sheet-template.html",
       width: 1200,
       height: 700,
       resizable: true,
@@ -290,15 +290,15 @@ class SheexcelActorSheet extends ActorSheet {
     }
     const refHtml = `<div class="sheexcel-reference-cell">
                     <input id="sheexcel-cell" type="text" value="" placeholder="${game.i18n.localize(
-                      "SHEEXCEL.Cell"
+                      "SHEEXCELREFRESHL.Cell"
                     )}">
                     <input id="sheexcel-keyword" type="text" value="" placeholder="${game.i18n.localize(
-                      "SHEEXCEL.Keyword"
+                      "SHEEXCELREFRESH.Keyword"
                     )}">
                     ${sheets}
                     <div class="sheexcel-reference-remove">
                         <button class="sheexcel-reference-remove-button">${game.i18n.localize(
-                          "SHEEXCEL.Remove"
+                          "SHEEXCELREFRESH.Remove"
                         )}</button>
                         <span class="sheexcel-reference-remove-value"></span>
                     </div>
