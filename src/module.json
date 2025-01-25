@@ -1,33 +1,29 @@
 {
-    "id": "sheexcel-refresh",
-    "title": "Sheexcel Module - Excel in your Sheets",
-    "description": "A simple module that brings excel to your sheets.",
-    "authors": [
-        {
-            "name": "muhahahahe",
-            "discord": "muhahahahe"
-        }
-    ],
-    "version": "0.3.4",
-    "compatibility": {
-        "minimum": "11",
-        "verified": "12",
-        "maximum": "12"
-    },
-    "esmodules": [
-        "scripts/sheexcel.js"
-    ],
-    "styles": [
-        "styles/sheexcel.css"
-    ],
-    "languages": [
-        {
-            "lang": "en",
-            "name": "English",
-            "path": "lang/en.json"
-        }
-    ],
-    "url": "https://github.com/Daedalus11069/foundry-sheexcel-module-refresh",
-    "manifest": "https://raw.githubusercontent.com/Daedalus11069/foundry-sheexcel-module-refresh/main/src/module.json",
-    "download": "https://github.com/Daedalus11069/foundry-sheexcel-module-refresh/releases/download/0.3.4/sheexcel_0.3.4.zip"
+  "id": "sheexcel-refresh",
+  "title": "Sheexcel Module - Excel in your Sheets",
+  "description": "A simple module that brings excel to your sheets.",
+  "authors": [
+    {
+      "name": "muhahahahe",
+      "discord": "muhahahahe"
+    }
+  ],
+  "version": "0.3.4",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "12",
+    "maximum": "12"
+  },
+  "esmodules": ["scripts/sheexcel.js"],
+  "styles": ["styles/sheexcel.css"],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "url": "https://github.com/Daedalus11069/foundry-sheexcel-module-refresh",
+  "manifest": "https://raw.githubusercontent.com/Daedalus11069/foundry-sheexcel-module-refresh/main/src/module.json",
+  "download": "https://github.com/Daedalus11069/foundry-sheexcel-module-refresh/releases/download/v0.3.4/sheexcel_0.3.4.zip"
 }
