@@ -36,17 +36,21 @@ Hooks.once("init", async function () {
 
   Actor.prototype.refreshCellValues = async function () {
     if (this.system.sheexcelrefresh) {
+      const sheexcelData = {};
       for await (const ref of this.getFlag(
         "sheexcelrefresh",
         "cellReferences"
       ) || []) {
         if (ref.keyword && ref.value !== undefined) {
-          this.system.sheexcelrefresh[ref.keyword] = await this._fetchCellValue(
+          sheexcelData[ref.keyword] = await this._fetchCellValue(
             ref.sheet,
             ref.cell
           );
         }
       }
+      await this.actor.update({
+        "system.sheexcelrefresh": sheexcelData
+      });
       return null;
     }
     return null;
