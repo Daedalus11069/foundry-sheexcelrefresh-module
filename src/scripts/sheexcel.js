@@ -35,8 +35,7 @@ Hooks.once("init", async function () {
   };
 
   Actor.prototype.refreshCellValues = async function () {
-    const actor = game.actors.get(actorId);
-    if (actor && actor.system.sheexcelrefresh) {
+    if (this.system.sheexcelrefresh) {
       for await (const ref of this.getFlag(
         "sheexcelrefresh",
         "cellReferences"
@@ -64,7 +63,7 @@ Hooks.once("init", async function () {
       }
       return null;
     },
-    refreshAllCellValues: async () => {
+    refreshAllCellValues: async actorId => {
       const actor = game.actors.get(actorId);
       if (actor && actor.system.sheexcelrefresh) {
         await actor.refreshCellValues();
