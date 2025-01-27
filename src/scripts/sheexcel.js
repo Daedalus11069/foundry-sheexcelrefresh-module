@@ -48,7 +48,7 @@ Hooks.once("init", async function () {
           );
         }
       }
-      await this.actor.update({
+      await this.update({
         "system.sheexcelrefresh": sheexcelData
       });
       return null;
