@@ -3,7 +3,7 @@
     <header class="sheexcel-sheet-header">
       <h1>{{ actor.name }}</h1>
     </header>
-    <!-- <section class="sheexcel-sheet-body">
+    <section class="sheexcel-sheet-body">
       <div class="sheexcel-main-content">
         <iframe
           class="sheexcel-iframe"
@@ -21,7 +21,7 @@
           {{ localize("SHEEXCELREFRESH.NoSheetURL") }}
         </p>
       </div>
-    </section> -->
+    </section>
     <nav class="sheexcel-sheet-tabs">
       <a class="sheexcel-sheet-toggle" @click="toggleSidebar">
         <div class="sheexcel-sheet-tab-icon">
@@ -347,7 +347,6 @@ const system = ref(
 );
 
 const iframeSrc = computed(() => {
-  console.log("updated");
   return `${sheetUrl.value}?embedded=true&rm=${
     hideMenu.value ? "minimal" : "embedded"
   }`;
@@ -358,7 +357,6 @@ useSortable(rangeSortableElm, adjustedRanges, { handle: ".range-sort-handle" });
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
   actorSheet._sidebarCollapsed = sidebarCollapsed.value;
-  actorSheet._saveFlags();
 };
 
 const toggleTab = active => {
@@ -366,7 +364,6 @@ const toggleTab = active => {
   activeTab.value = active;
   actorSheet._sidebarCollapsed = sidebarCollapsed.value;
   actorSheet._activeTab = activeTab.value;
-  actorSheet._saveFlags();
 };
 
 const onAddReference = async () => {
@@ -390,12 +387,6 @@ const onRemoveReference = async idx => {
     prevSibling.scrollIntoView();
   }
   actorSheet._cellReferences = adjustedReferences.value;
-  actorSheet._saveFlags();
-};
-
-const onSaveReference = () => {
-  actorSheet._refetchAllCellValues();
-  actorSheet._saveFlags();
 };
 
 const onCellReferenceChange = async (index, currentRef) => {
@@ -453,6 +444,7 @@ onMounted(() => {
 });
 
 onUnmounted(async () => {
+  await actorSheet._saveFlags();
   await actorSheet.actor.update({ "system.sheexcelrefresh": system.value });
 });
 </script>
