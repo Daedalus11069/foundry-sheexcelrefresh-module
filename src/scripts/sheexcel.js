@@ -1,3 +1,4 @@
+import { inferSchema, initParser } from "udsv";
 import VueSheet from "../libs/vue/VueSheet";
 import VueSheetTemplate from "./sheet-template.vue";
 
@@ -25,6 +26,7 @@ Hooks.once("init", async function () {
 
     const data = {};
     const sheetKeys = Object.keys(cells);
+    console.log({ sheetKeys });
     for await (const sheetName of sheetKeys) {
       const cellRefs = cells[sheetName].map(({ cell }) => cell).join(",");
 
@@ -37,14 +39,24 @@ Hooks.once("init", async function () {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      data[sheetName] = (await response.text())
-        .trim()
-        .split(",")
-        .map(cellResult => cellResult.replace(/^"(.*)"$/, "$1"))
-        .map((cellResult, idx) => ({
-          keyword: cells[sheetName][idx].keyword,
-          text: cellResult
-        }));
+      let csvStr = (await response.text()).trim();
+      if (csvStr.split(",").length === 1) {
+        csvStr = csvStr.replace(/^"(.*)"$/, "$1");
+      }
+
+      const csvData = initParser(
+        inferSchema(cellRefs + "\n" + csvStr)
+      ).stringObjs(cellRefs + "\n" + csvStr)[0];
+
+      data[sheetName] = Object.keys(csvData).reduce((carry, cellRef) => {
+        const foundCell = cells[sheetName].find(({ cell }) => cell === cellRef);
+        carry.push({
+          keyword: foundCell.keyword,
+          text: csvData[cellRef],
+          cell: foundCell.cell
+        });
+        return carry;
+      }, []);
     }
 
     return data;
@@ -54,6 +66,7 @@ Hooks.once("init", async function () {
     if (this.system.sheexcelrefresh) {
       const sheexcelData = {};
       const cells = {};
+      const updatedReferences = [];
       for await (const ref of this.getFlag(
         "sheexcelrefresh",
         "cellReferences"
@@ -70,14 +83,24 @@ Hooks.once("init", async function () {
         const cellResults = data[sheetName];
         for (const cellResult of cellResults) {
           sheexcelData[cellResult.keyword] = cellResult.text;
+          updatedReferences.push({
+            sheet: sheetName,
+            cell: cellResult.cell,
+            keyword: cellResult.keyword,
+            value: cellResult.text
+          });
         }
       }
+
+      await this.setFlag(
+        "sheexcelrefresh",
+        "cellReferences",
+        updatedReferences
+      );
       await this.update({
         "system.sheexcelrefresh": sheexcelData
       });
-      return null;
     }
-    return null;
   };
 
   game.sheexcelrefresh = {
@@ -95,9 +118,7 @@ Hooks.once("init", async function () {
       const actor = game.actors.get(actorId);
       if (actor && actor.system.sheexcelrefresh) {
         await actor.refreshCellValues();
-        return null;
       }
-      return null;
     }
   };
 });
@@ -115,8 +136,13 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
       this.actor.getFlag("sheexcelrefresh", "zoomLevel") || 100;
     this._sidebarCollapsed =
       this.actor.getFlag("sheexcelrefresh", "sidebarCollapsed") || false;
+    this._activeTab =
+      this.actor.getFlag("sheexcelrefresh", "activeTab") || "settings";
     this._cellReferences =
       this.actor.getFlag("sheexcelrefresh", "cellReferences") || [];
+    this._ranges = this.actor.getFlag("sheexcelrefresh", "ranges") || [];
+    this._rangeHeaders =
+      this.actor.getFlag("sheexcelrefresh", "rangeHeaders") || [];
     this._sheetId = this.actor.getFlag("sheexcelrefresh", "sheetId") || null;
     this._currentSheetName =
       this.actor.getFlag("sheexcelrefresh", "currentSheetName") || null;
@@ -129,17 +155,9 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["sheet", "actor", "sheexcelrefresh"],
-      template: "modules/sheexcelrefresh/templates/sheet-template.html",
       width: 1200,
       height: 700,
-      resizable: true,
-      tabs: [
-        {
-          navSelector: ".sheexcel-sheet-tabs",
-          contentSelector: ".sheexcel-sidebar",
-          initial: "settings"
-        }
-      ]
+      resizable: true
     });
   }
 
@@ -149,21 +167,19 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
     data.zoomLevel = this._currentZoomLevel;
     data.hideMenu = this.actor.getFlag("sheexcelrefresh", "hideMenu") || true;
     data.sidebarCollapsed = this._sidebarCollapsed;
+    data.activeTab = this._activeTab;
     data.cellReferences = this._cellReferences;
     data.sheetNames = this._sheetNames.length > 1 ? this._sheetNames : null;
     data.currentSheetName = this._currentSheetName;
     data.sheetId = this._sheetId;
     data.adjustedReferences = this._cellReferences.map(cellRef => {
-      const sheetNames = this._sheetNames.reduce((acc, name) => {
-        acc[name] = name;
-        return acc;
-      }, {});
-      cellRef.sheetNames = sheetNames;
       if (cellRef.value.length > 10) {
         cellRef.value = foundry.utils.duplicate(cellRef.value).slice(0, 10);
       }
       return cellRef;
     });
+    data.adjustedRanges = this._ranges.slice(0);
+    data.adjustedRangeHeaders = this._rangeHeaders.slice(0);
     return data;
   }
 
@@ -184,32 +200,7 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
   }
 
   activateListeners(html) {
-    super.activateListeners(html);
-
-    html.find(".sheexcel-sheet-references").click(this._onToggleTab.bind(this));
-    html.find(".sheexcel-sheet-settings").click(this._onToggleTab.bind(this));
-  }
-
-  _onToggleTab(event) {
-    event.preventDefault();
-    if (!this._sidebarCollapsed) return;
-    this._sidebarCollapsed = false;
-    const icon = $(event.currentTarget.parentElement.children[0].children[0]);
-
-    const collapsed = `<svg width="30" height="24" viewBox="0 -4 27 26" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="1" y="1" width="25" height="20" fill="#eeeeee" stroke="#000000" stroke-width="2"/>
-                    <rect x="18" y="1" width="1" height="20" fill="#151515"/>
-                </svg>`;
-    const expanded = `<svg width="30" height="24" viewBox="0 -4 27 26" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="1" y="1" width="25" height="20" fill="#eeeeee" stroke="#000000" stroke-width="2"/>
-                    <rect x="18" y="1" width="7" height="20" fill="#151515"/>
-                </svg>`;
-    icon.empty();
-    icon.append(this._sidebarCollapsed ? collapsed : expanded);
-
-    const sidebar = this.element.find(".sheexcel-sidebar");
-
-    sidebar.toggleClass("collapsed", this._sidebarCollapsed);
+    super.deactivateListeners(html);
   }
 
   async _fetchSheetNames() {
@@ -286,7 +277,10 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
     const flags = {
       zoomLevel: this._currentZoomLevel,
       sidebarCollapsed: this._sidebarCollapsed,
+      activeTab: this._activeTab,
       cellReferences: this._cellReferences,
+      ranges: this._ranges,
+      rangeHeaders: this._rangeHeaders,
       currentSheetName: this._currentSheetName,
       sheetNames: this._sheetNames
     };

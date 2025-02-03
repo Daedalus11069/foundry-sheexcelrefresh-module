@@ -3,72 +3,67 @@
     <header class="sheexcel-sheet-header">
       <h1>{{ actor.name }}</h1>
     </header>
-    <section class="sheexcel-sheet-body">
+    <!-- <section class="sheexcel-sheet-body">
       <div class="sheexcel-main-content">
-        <template v-if="sheetUrl">
-          <iframe
-            class="sheexcel-iframe"
-            :style="{
-              transform: `scale(${zoomLevel / 100})`,
-              transformOrigin: `top left`,
-              width: `${100 * (100 / zoomLevel)}%`,
-              height: `${100 * (100 / zoomLevel)}%`
-            }"
-            :src="`${sheetUrl}?embedded=true&rm=${
-              hideMenu ? 'minimal' : 'embedded'
-            }`"
-            frameborder="0"
-          ></iframe>
-        </template>
-        <template v-else>
-          <p>{{ localize("SHEEXCELREFRESH.NoSheetURL") }}</p>
-        </template>
+        <iframe
+          class="sheexcel-iframe"
+          :style="{
+            transform: `scale(${zoomLevel / 100})`,
+            transformOrigin: `top left`,
+            width: `${100 * (100 / zoomLevel)}%`,
+            height: `${100 * (100 / zoomLevel)}%`
+          }"
+          :src="iframeSrc"
+          frameborder="0"
+          v-show="sheetUrl !== ''"
+        ></iframe>
+        <p v-show="sheetUrl === ''">
+          {{ localize("SHEEXCELREFRESH.NoSheetURL") }}
+        </p>
       </div>
-    </section>
-    <nav class="sheexcel-sheet-tabs tabs" data-group="primary">
-      <a class="sheexcel-sheet-toggle" @click.prevent="toggleSidebar">
+    </section> -->
+    <nav class="sheexcel-sheet-tabs">
+      <a class="sheexcel-sheet-toggle" @click="toggleSidebar">
         <div class="sheexcel-sheet-tab-icon">
-          <div v-if="sidebarCollapsed">
-            <svg
-              width="30"
-              height="24"
-              viewBox="0 -4 27 26"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect
-                x="1"
-                y="1"
-                width="25"
-                height="20"
-                fill="#eeeeee"
-                stroke="#000000"
-                stroke-width="2"
-              />
-              <rect x="18" y="1" width="1" height="20" fill="#151515" />
-            </svg>
-          </div>
-          <div v-else>
-            <svg
-              width="30"
-              height="24"
-              viewBox="0 -4 27 26"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect
-                x="1"
-                y="1"
-                width="25"
-                height="20"
-                fill="#eeeeee"
-                stroke="#000000"
-                stroke-width="2"
-              />
-              <rect x="18" y="1" width="7" height="20" fill="#151515" />
-            </svg>
-          </div>
+          <svg
+            width="30"
+            height="24"
+            viewBox="0 -4 27 26"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="1"
+              y="1"
+              width="25"
+              height="20"
+              fill="#eeeeee"
+              stroke="#000000"
+              stroke-width="2"
+            />
+            <rect
+              x="18"
+              y="1"
+              width="1"
+              height="20"
+              fill="#151515"
+              v-if="sidebarCollapsed"
+            />
+            <rect
+              x="18"
+              y="1"
+              width="7"
+              height="20"
+              fill="#151515"
+              v-if="!sidebarCollapsed"
+            />
+          </svg>
         </div>
       </a>
-      <a class="item sheexcel-sheet-references" data-tab="references">
+      <a
+        class="sheexcel-sheet-references"
+        :class="{ active: activeTab === 'references' }"
+        @click="toggleTab('references')"
+      >
         <div class="sheexcel-sheet-tab-icon">
           <svg
             width="30"
@@ -92,7 +87,38 @@
           </svg>
         </div>
       </a>
-      <a class="item sheexcel-sheet-settings" data-tab="settings">
+      <a
+        class="sheexcel-sheet-ranges"
+        :class="{ active: activeTab === 'ranges' }"
+        @click="toggleTab('ranges')"
+      >
+        <div class="sheexcel-sheet-tab-icon">
+          <svg width="30" height="24" viewBox="0 -4 27 26" fill="none">
+            <rect
+              x="1"
+              y="1"
+              width="25"
+              height="20"
+              fill="#262626"
+              stroke="#000000"
+              stroke-width="2"
+            />
+            <rect x="5" y="6" width="2" height="2" fill="#eeeeee" />
+            <rect x="10" y="6" width="10" height="2" fill="#eeeeee" />
+
+            <rect x="5" y="10" width="2" height="2" fill="#eeeeee" />
+            <rect x="10" y="10" width="10" height="2" fill="#eeeeee" />
+
+            <rect x="5" y="14" width="2" height="2" fill="#eeeeee" />
+            <rect x="10" y="14" width="10" height="2" fill="#eeeeee" />
+          </svg>
+        </div>
+      </a>
+      <a
+        class="sheexcel-sheet-settings"
+        :class="{ active: activeTab === 'settings' }"
+        @click="toggleTab('settings')"
+      >
         <div class="sheexcel-sheet-tab-icon">
           <svg
             width="30"
@@ -111,24 +137,21 @@
     </nav>
 
     <div class="sheexcel-sidebar" :class="{ collapsed: sidebarCollapsed }">
-      <div
-        class="sheexcel-sidebar-tab tab references"
-        data-group="primary"
-        data-tab="references"
-      >
+      <div class="sheexcel-sidebar-tab" v-show="activeTab === 'references'">
         <div class="sheexcel-references-container">
           <h3>{{ localize("SHEEXCELREFRESH.References") }}</h3>
-          <div class="sheexcel-references">
+          <div class="sheexcel-references" ref="referencesEl">
             <div
               class="sheexcel-reference-cell"
               v-for="(ref, idx) in adjustedReferences"
+              ref="referenceEls"
             >
               <input
                 class="sheexcel-cell"
                 type="text"
                 v-model="ref.cell"
                 :placeholder="localize('SHEEXCELREFRESH.Cell')"
-                @input.prevent.stop="onCellReferenceChange(idx)"
+                @input.prevent.stop="onCellReferenceChange(idx, ref)"
               />
               <input
                 class="sheexcel-keyword"
@@ -137,7 +160,75 @@
                 :placeholder="localize('SHEEXCELREFRESH.Keyword')"
                 @input.prevent.stop="onKeywordReferenceChange(idx)"
               />
-              <div v-if="sheetNames.length > 1">
+              <div v-show="sheetNames.length > 1">
+                <select
+                  class="sheexcel-sheet"
+                  name="sheet"
+                  v-model="ref.sheet"
+                  @change.prevent.stop="onCellReferenceChange(idx, ref)"
+                >
+                  <option
+                    :value="sheetName"
+                    v-for="sheetName in sheetNames"
+                    :selected="sheetName === ref.sheet"
+                  >
+                    {{ sheetName }}
+                  </option>
+                </select>
+              </div>
+              <div v-show="sheetNames.length < 1">
+                <span class="sheexcel-reference-cell-sheet">{{
+                  ref.sheet
+                }}</span>
+              </div>
+              <div class="sheexcel-reference-remove">
+                <button
+                  type="button"
+                  class="sheexcel-reference-remove-button"
+                  @click.stop="onRemoveReference(idx)"
+                >
+                  {{ localize("SHEEXCELREFRESH.Remove") }}
+                </button>
+                <span class="sheexcel-reference-remove-value">{{
+                  ref.value
+                }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="sheexcel-references-add">
+            <button
+              type="button"
+              class="sheexcel-reference-add-button"
+              @click.stop="onAddReference"
+            >
+              {{ localize("SHEEXCELREFRESH.AddReference") }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="sheexcel-sidebar-tab" v-show="activeTab === 'ranges'">
+        <h3>{{ localize("SHEEXCELREFRESH.Ranges") }}</h3>
+        <div class="sheexcel-ranges-container">
+          <div class="sheexcel-ranges" ref="rangeSortableEl">
+            <div v-for="(header, idx) in adjustedRangeHeaders">
+              <div class="range-sort-handle">
+                <div class="fa fa-sort"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sheexcel-ranges">
+            <div
+              class="sheexcel-reference-range"
+              v-for="(ref, idx) in adjustedRanges"
+            >
+              <input
+                class="sheexcel-range"
+                type="text"
+                v-model="ref.range"
+                :placeholder="localize('SHEEXCELREFRESH.Range')"
+                @input.prevent.stop="onCellRangeChange(idx)"
+              />
+              <div v-show="sheetNames.length > 1">
                 <select
                   class="sheexcel-sheet"
                   name="sheet"
@@ -153,41 +244,31 @@
                   </option>
                 </select>
               </div>
-              <div v-else>
-                <span class="sheexcel-reference-cell-sheet">{{
-                  ref.sheet
-                }}</span>
+              <div v-show="sheetNames.length < 1">
+                <span class="sheexcel-range-cell-sheet">{{ ref.sheet }}</span>
               </div>
-              <div class="sheexcel-reference-remove">
-                <button
-                  type="button"
-                  class="sheexcel-reference-remove-button"
-                  @click="onRemoveReference(idx)"
+              <div class="sheexcel-range-remove">
+                <a
+                  class="sheexcel-range-remove-button"
+                  @click="onRemoveRange(idx)"
                 >
                   {{ localize("SHEEXCELREFRESH.Remove") }}
-                </button>
-                <span class="sheexcel-reference-remove-value">{{
-                  ref.value
-                }}</span>
+                </a>
               </div>
             </div>
           </div>
-          <div class="sheexcel-references-add">
+          <div class="sheexcel-ranges-add">
             <button
               type="button"
-              class="sheexcel-reference-add-button"
-              @click="onAddReference"
+              class="sheexcel-range-add-button"
+              @click="onAddRange"
             >
-              {{ localize("SHEEXCELREFRESH.AddReference") }}
+              {{ localize("SHEEXCELREFRESH.AddRange") }}
             </button>
           </div>
         </div>
       </div>
-      <div
-        class="sheexcel-sidebar-tab tab settings"
-        data-group="primary"
-        data-tab="settings"
-      >
+      <div class="sheexcel-sidebar-tab" v-show="activeTab === 'settings'">
         <h3>{{ localize("SHEEXCELREFRESH.Settings") }}</h3>
         <div class="sheexcel-settings">
           <div class="sheexcel-settings-container">
@@ -232,7 +313,16 @@
 </template>
 
 <script setup>
-import { inject, onMounted, onUnmounted, ref } from "vue";
+import {
+  computed,
+  inject,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  useTemplateRef
+} from "vue";
+import { useSortable } from "@vueuse/integrations/useSortable";
 import { localize } from "../libs/vue/VueHelpers";
 
 const actor = inject("actor");
@@ -240,19 +330,42 @@ const actorSheet = inject("actorSheet");
 
 const data = ref(actorSheet.getData());
 
+const activeTab = ref(data.value.activeTab);
 const sheetUrl = ref(data.value.sheetUrl);
 const sheetNames = ref(data.value.sheetNames);
 const hideMenu = ref(data.value.hideMenu);
 const sidebarCollapsed = ref(data.value.sidebarCollapsed);
 const zoomLevel = ref(data.value.zoomLevel);
+const referencesElm = useTemplateRef("referencesEl");
+const referenceElms = useTemplateRef("referenceEls");
 const adjustedReferences = ref(data.value.adjustedReferences);
+const adjustedRangeHeaders = ref(data.value.adjustedRangeHeaders);
+const adjustedRanges = ref(data.value.adjustedRanges);
+const rangeSortableElm = useTemplateRef("rangeSortableEl");
 const system = ref(
   foundry.utils.duplicate(actorSheet.actor.system.sheexcelrefresh)
 );
 
+const iframeSrc = computed(() => {
+  console.log("updated");
+  return `${sheetUrl.value}?embedded=true&rm=${
+    hideMenu.value ? "minimal" : "embedded"
+  }`;
+});
+
+useSortable(rangeSortableElm, adjustedRanges, { handle: ".range-sort-handle" });
+
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
   actorSheet._sidebarCollapsed = sidebarCollapsed.value;
+  actorSheet._saveFlags();
+};
+
+const toggleTab = active => {
+  sidebarCollapsed.value = false;
+  activeTab.value = active;
+  actorSheet._sidebarCollapsed = sidebarCollapsed.value;
+  actorSheet._activeTab = activeTab.value;
   actorSheet._saveFlags();
 };
 
@@ -265,11 +378,19 @@ const onAddReference = async () => {
     value: ""
   });
   actorSheet._cellReferences = adjustedReferences.value;
+  await nextTick();
+  referencesElm.value.scrollTop = referencesElm.value.scrollHeight;
 };
 
 const onRemoveReference = async idx => {
-  actorSheet._cellReferences.splice(idx, 1);
-  onSaveReference();
+  const prevSibling = referenceElms.value[idx].previousElementSibling;
+  adjustedReferences.value.splice(idx, 1);
+  if (prevSibling !== null) {
+    await nextTick();
+    prevSibling.scrollIntoView();
+  }
+  actorSheet._cellReferences = adjustedReferences.value;
+  actorSheet._saveFlags();
 };
 
 const onSaveReference = () => {
@@ -277,7 +398,7 @@ const onSaveReference = () => {
   actorSheet._saveFlags();
 };
 
-const onCellReferenceChange = async index => {
+const onCellReferenceChange = async (index, currentRef) => {
   if (
     actorSheet._cellReferences[index].cell &&
     actorSheet._cellReferences[index].cell.length &&
@@ -292,14 +413,13 @@ const onCellReferenceChange = async index => {
   const ref = system.value;
   ref[actorSheet._cellReferences[index].keyword] =
     actorSheet._cellReferences[index].value;
-  // actorSheet.actor.update({ "system.sheexcelrefresh": ref });
+  currentRef.value = actorSheet._cellReferences[index].value;
 };
 
 const onKeywordReferenceChange = index => {
   const ref = system.value;
   ref[actorSheet._cellReferences[index].keyword] =
     actorSheet._cellReferences[index].value;
-  // actorSheet.actor.update({ "system.sheexcelrefresh": ref });
 };
 
 const onUpdateSheet = async () => {
@@ -337,181 +457,182 @@ onUnmounted(async () => {
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .sheexcel-sheet-container {
   display: flex;
   flex-direction: column;
   height: 100%;
   padding: 5px 5px;
   position: relative;
-}
 
-.sheexcel-sheet-container .sheexcel-sheet-header {
-  flex: 0 0 auto;
-  padding: 0px 265px 0px 0px;
-  border-bottom: 1px solid #ddd;
-}
+  .sheexcel-sheet-header {
+    flex: 0 0 auto;
+    padding: 0px 265px 0px 0px;
+    border-bottom: 1px solid #ddd;
+  }
 
-.sheexcel-sheet-container .sheexcel-sheet-body {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
+  .sheexcel-sheet-body {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
 
-.sheexcel-sheet-container .sheexcel-main-content {
-  flex: 1;
-  overflow: hidden;
-}
+  .sheexcel-main-content {
+    flex: 1;
+    overflow: hidden;
+  }
 
-.sheexcel-sheet-container .sheexcel-iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
+  .sheexcel-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
 
-.sheexcel-sheet-container .sheexcel-sheet-tabs {
-  position: absolute;
-  flex-direction: row;
-  top: 5px;
-  right: 5px;
-  width: 258px;
-  height: 35px;
-  background: #eeeeee;
-  color: #151515;
-  border: none;
-}
+  .sheexcel-sheet-tabs {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    top: 5px;
+    right: 5px;
+    width: 504px;
+    height: 35px;
+    background: #eeeeee;
+    color: #151515;
+    border: none;
+  }
 
-.sheexcel-sheet-container .sheexcel-sheet-tabs a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-}
+  .sheexcel-sheet-tabs a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
 
-.sheexcel-sheet-container .sheexcel-sheet-tabs a:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
+  .sheexcel-sheet-tabs a:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
 
-.sheexcel-sheet-container .sheexcel-sheet-tabs a.active {
-  box-shadow: inset 0 0 5px rgba(255, 165, 0, 0.2),
-    inset 0 0 10px rgba(255, 100, 0, 0.3);
-  transition: box-shadow 0.3s ease;
-}
+  .sheexcel-sheet-tabs a.active {
+    box-shadow: inset 0 0 5px rgba(255, 165, 0, 0.2),
+      inset 0 0 10px rgba(255, 100, 0, 0.3);
+    transition: box-shadow 0.3s ease;
+  }
 
-.sheexcel-sheet-container .sheexcel-sidebar {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  top: 50px;
-  right: 5px;
-  bottom: 5px;
-  width: 258px;
-  background-color: #f0f0f0;
-  color: #151515;
-  padding: 10px 10px;
-  transition: transform 0.3s ease;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-}
+  .sheexcel-sidebar {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    top: 50px;
+    right: 5px;
+    bottom: 5px;
+    width: 504px;
+    background-color: #f0f0f0;
+    color: #151515;
+    padding: 10px 10px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    transition: transform 0.3s ease;
+    &.collapsed {
+      transform: translateX(calc(100% + 20px));
+    }
+  }
 
-.sheexcel-sheet-container .sheexcel-sidebar.collapsed {
-  transform: translateX(calc(100% + 20px));
-}
+  .sheexcel-sidebar-tab {
+    flex-direction: column;
+    height: 100%;
+  }
 
-.sheexcel-sheet-container .sheexcel-sidebar-tab {
-  flex-direction: column;
-  height: 100%;
-}
+  .sheexcel-sidebar-tab-icon {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
 
-.sheexcel-sheet-container .sheexcel-sidebar-tab-icon {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-}
+  .sheexcel-references-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
 
-.sheexcel-sheet-container .sheexcel-references-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
+  .sheexcel-references {
+    flex-grow: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
 
-.sheexcel-sheet-container .sheexcel-references {
-  flex-grow: 1;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
+  .sheexcel-reference-cell {
+    flex: 1;
+    flex-direction: row;
+    padding: 5px 5px;
+    margin-bottom: 5px;
+    width: 100%;
+    justify-self: center;
+    background-color: #ffffff;
+  }
 
-.sheexcel-sheet-container .sheexcel-reference-cell {
-  flex: 1;
-  flex-direction: row;
-  padding: 5px 5px;
-  margin-bottom: 5px;
-  width: 100%;
-  justify-self: center;
-  background-color: #ffffff;
-}
+  .sheexcel-reference-cell input.sheexcel-cell {
+    width: 45px;
+  }
 
-.sheexcel-sheet-container .sheexcel-reference-cell input.sheexcel-cell {
-  width: 38px;
-}
+  .sheexcel-reference-cell input.sheexcel-keyword {
+    width: 98px;
+  }
 
-.sheexcel-sheet-container .sheexcel-reference-cell input.sheexcel-keyword {
-  width: 98px;
-}
+  .sheexcel-reference-cell select.sheexcel-sheet {
+    max-width: calc(45px + 98px);
+  }
 
-.sheexcel-sheet-container .sheexcel-reference-cell select.sheexcel-sheet {
-  max-width: 75px;
-}
+  .sheexcel-reference-remove {
+    flex-direction: row;
+    justify-content: stretch;
+    margin-top: 5px;
+  }
 
-.sheexcel-sheet-container .sheexcel-reference-remove {
-  flex-direction: row;
-  justify-content: stretch;
-  margin-top: 5px;
-}
+  .sheexcel-reference-remove-value {
+    text-align: center;
+    width: 100%;
+    margin-left: 10px;
+  }
 
-.sheexcel-sheet-container .sheexcel-reference-remove-value {
-  text-align: center;
-  width: 100%;
-}
+  .sheexcel-reference-remove-button {
+    width: 143px;
+  }
 
-.sheexcel-sheet-container .sheexcel-reference-remove-button {
-  width: 143px;
-}
+  .sheexcel-reference-remove-save {
+    display: none;
+  }
 
-.sheexcel-sheet-container .sheexcel-reference-remove-save {
-  display: none;
-}
+  .sheexcel-references-add {
+    flex-shrink: 0;
+    margin-top: auto;
+  }
 
-.sheexcel-sheet-container .sheexcel-references-add {
-  flex-shrink: 0;
-  margin-top: auto;
-}
+  .sheexcel-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 5px 5px;
+    margin-bottom: 5px;
+    width: 100%;
+    justify-self: center;
+    align-items: center;
+    text-align: center;
+    background-color: #ffffff;
+  }
 
-.sheexcel-sheet-container .sheexcel-settings-container {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 5px 5px;
-  margin-bottom: 5px;
-  width: 100%;
-  justify-self: center;
-  align-items: center;
-  text-align: center;
-  background-color: #ffffff;
-}
+  input.sheexcel-settings-container {
+    width: 100%;
+  }
 
-.sheexcel-sheet-container input.sheexcel-settings-container {
-  width: 100%;
-}
-
-.sheexcel-sheet-container .sheexcel-settings-zoom-value {
-  min-width: 40px;
-  text-align: center;
+  .sheexcel-settings-zoom-value {
+    min-width: 40px;
+    text-align: center;
+  }
 }
 </style>
