@@ -11,12 +11,13 @@
       "name": "Daedalus11069"
     }
   ],
-  "version": "0.3.9",
+  "version": "0.4.0",
   "compatibility": {
     "minimum": "11",
-    "verified": "12",
-    "maximum": "12"
+    "verified": "11",
+    "maximum": "11"
   },
+  "scripts": ["dev-env.js"],
   "esmodules": ["scripts/sheexcel.js"],
   "styles": ["styles/sheexcel.css"],
   "languages": [
@@ -27,6 +28,5 @@
     }
   ],
   "url": "https://github.com/Daedalus11069/foundry-sheexcel-module-refresh",
-  "manifest": "https://raw.githubusercontent.com/Daedalus11069/foundry-sheexcel-module-refresh/main/src/module.json",
-  "download": "https://github.com/Daedalus11069/foundry-sheexcel-module-refresh/releases/download/v0.3.9/sheexcelrefresh_0.3.9.zip"
+  "manifest": "https://raw.githubusercontent.com/Daedalus11069/foundry-sheexcel-module-refresh/main/manifest/module.json"
 }

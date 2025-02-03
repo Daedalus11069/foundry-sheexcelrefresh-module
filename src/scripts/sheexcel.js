@@ -1,3 +1,6 @@
+import VueSheet from "../libs/vue/VueSheet";
+import VueSheetTemplate from "./sheet-template.vue";
+
 Hooks.once("init", async function () {
   Actors.registerSheet("sheexcelrefresh", SheexcelActorSheet, {
     label: "Sheexcel",
@@ -17,35 +20,56 @@ Hooks.once("init", async function () {
     }
   };
 
-  Actor.prototype._fetchCellValue = async function (sheetName, cellRef) {
+  Actor.prototype._fetchCellValues = async function (cells = {}) {
     const sheetId = this.getFlag("sheexcelrefresh", "sheetId");
-    if (cellRef === "") return "";
 
-    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(
-      sheetName
-    )}&range=${cellRef}`;
+    const data = {};
+    const sheetKeys = Object.keys(cells);
+    for await (const sheetName of sheetKeys) {
+      const cellRefs = cells[sheetName].map(({ cell }) => cell).join(",");
 
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(
+        sheetName
+      )}&range=${cellRefs}`;
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      data[sheetName] = (await response.text())
+        .trim()
+        .split(",")
+        .map(cellResult => cellResult.replace(/^"(.*)"$/, "$1"))
+        .map((cellResult, idx) => ({
+          keyword: cells[sheetName][idx].keyword,
+          text: cellResult
+        }));
     }
 
-    const text = (await response.text()).trim().replace(/^"(.*)"$/, "$1");
-    return text;
+    return data;
   };
 
   Actor.prototype.refreshCellValues = async function () {
     if (this.system.sheexcelrefresh) {
       const sheexcelData = {};
+      const cells = {};
       for await (const ref of this.getFlag(
         "sheexcelrefresh",
         "cellReferences"
       ) || []) {
-        if (ref.keyword && ref.value !== undefined) {
-          sheexcelData[ref.keyword] = await this._fetchCellValue(
-            ref.sheet,
-            ref.cell
-          );
+        if (ref.keyword !== "" && ref.cell !== "") {
+          if (typeof cells[ref.sheet] === "undefined") {
+            cells[ref.sheet] = [];
+          }
+          cells[ref.sheet].push({ keyword: ref.keyword, cell: ref.cell });
+        }
+      }
+      const data = await this._fetchCellValues(cells);
+      for (const sheetName of Object.keys(data)) {
+        const cellResults = data[sheetName];
+        for (const cellResult of cellResults) {
+          sheexcelData[cellResult.keyword] = cellResult.text;
         }
       }
       await this.update({
@@ -78,7 +102,13 @@ Hooks.once("init", async function () {
   };
 });
 
-class SheexcelActorSheet extends ActorSheet {
+class SheexcelActorSheet extends VueSheet(ActorSheet) {
+  get vueComponent() {
+    return VueSheetTemplate;
+  }
+  getVueContext() {
+    return { data: { cssClass: "sheexcel-sheet" } };
+  }
   constructor(...args) {
     super(...args);
     this._currentZoomLevel =
@@ -113,11 +143,11 @@ class SheexcelActorSheet extends ActorSheet {
     });
   }
 
-  async getData() {
+  getData() {
     const data = super.getData();
     data.sheetUrl = this.actor.getFlag("sheexcelrefresh", "sheetUrl") || "";
     data.zoomLevel = this._currentZoomLevel;
-    data.hideMenu = this.actor.getFlag("sheexcelrefresh", "hideMenu") ?? true;
+    data.hideMenu = this.actor.getFlag("sheexcelrefresh", "hideMenu") || true;
     data.sidebarCollapsed = this._sidebarCollapsed;
     data.cellReferences = this._cellReferences;
     data.sheetNames = this._sheetNames.length > 1 ? this._sheetNames : null;
@@ -156,64 +186,8 @@ class SheexcelActorSheet extends ActorSheet {
   activateListeners(html) {
     super.activateListeners(html);
 
-    html.find(".sheexcel-sheet-toggle").click(this._onToggleSidebar.bind(this));
     html.find(".sheexcel-sheet-references").click(this._onToggleTab.bind(this));
     html.find(".sheexcel-sheet-settings").click(this._onToggleTab.bind(this));
-    html
-      .find(".sheexcel-setting-update-sheet")
-      .click(this._onUpdateSheet.bind(this));
-    html
-      .find(".sheexcel-reference-add-button")
-      .click(this._onAddReference.bind(this));
-    html.on(
-      "click",
-      ".sheexcel-reference-remove-save",
-      this._onSaveReference.bind(this)
-    );
-    html.on(
-      "click",
-      ".sheexcel-reference-remove-button",
-      this._onRemoveReference.bind(this)
-    );
-    html.on("change", "#sheexcel-cell", this._onCellReferenceChange.bind(this));
-    html.on(
-      "change",
-      "#sheexcel-keyword",
-      this._onKeywordReferenceChange.bind(this)
-    );
-    html.on(
-      "change",
-      "#sheexcel-sheet",
-      this._onCellReferenceChange.bind(this)
-    );
-
-    this._iframe = html.find(".sheexcel-iframe")[0];
-    this._setupZoom(html, this._iframe);
-    this._setupHideMenu(html, this._iframe);
-
-    this._applyZoom(this._iframe, this._currentZoomLevel);
-  }
-
-  _onToggleSidebar(event) {
-    event.preventDefault();
-    this._sidebarCollapsed = !this._sidebarCollapsed;
-
-    const icon = $(event.currentTarget.children[0]);
-
-    const collapsed = `<svg width="30" height="24" viewBox="0 -4 27 26" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="1" y="1" width="25" height="20" fill="#eeeeee" stroke="#000000" stroke-width="2"/>
-                    <rect x="18" y="1" width="1" height="20" fill="#151515"/>
-                </svg>`;
-    const expanded = `<svg width="30" height="24" viewBox="0 -4 27 26" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="1" y="1" width="25" height="20" fill="#eeeeee" stroke="#000000" stroke-width="2"/>
-                    <rect x="18" y="1" width="7" height="20" fill="#151515"/>
-                </svg>`;
-    icon.empty();
-    icon.append(this._sidebarCollapsed ? collapsed : expanded);
-
-    const sidebar = this.element.find(".sheexcel-sidebar");
-
-    sidebar.toggleClass("collapsed", this._sidebarCollapsed);
   }
 
   _onToggleTab(event) {
@@ -236,36 +210,6 @@ class SheexcelActorSheet extends ActorSheet {
     const sidebar = this.element.find(".sheexcel-sidebar");
 
     sidebar.toggleClass("collapsed", this._sidebarCollapsed);
-  }
-
-  async _onUpdateSheet(event) {
-    event.preventDefault();
-    let sheetUrl = this.element.find('input[name="sheetUrl"]').val();
-
-    if (!sheetUrl) {
-      this.sheetId = null;
-      this.currentSheetName = null;
-      this.sheetNames = [];
-      this.render(false);
-      return;
-    }
-
-    const sheetIdMatch = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-    if (sheetIdMatch) {
-      this._sheetId = sheetIdMatch[1];
-      await this._fetchSheetNames();
-    }
-
-    await this.actor.setFlag("sheexcelrefresh", "sheetId", this._sheetId);
-    await this.actor.setFlag(
-      "sheexcelrefresh",
-      "sheetName",
-      this._currentSheetName
-    );
-    await this.actor.setFlag("sheexcelrefresh", "sheetNames", this._sheetNames);
-    await this.actor.setFlag("sheexcelrefresh", "sheetUrl", sheetUrl);
-
-    this.render(false);
   }
 
   async _fetchSheetNames() {
@@ -305,63 +249,6 @@ class SheexcelActorSheet extends ActorSheet {
     return this._sheetNames;
   }
 
-  _onAddReference(event) {
-    event.preventDefault();
-    this._fetchSheetNames();
-    this._cellReferences.push({
-      sheet: this._currentSheetName,
-      cell: "",
-      keyword: "",
-      value: ""
-    });
-    const references = $(
-      event.currentTarget.parentElement.previousElementSibling
-    );
-    let sheets;
-    if (this._sheetNames.length > 1) {
-      sheets = `<select id="sheexcel-sheet" name="sheet">`;
-      sheets += this._sheetNames
-        .map((name, i) => `<option value="${i}">${name}</option>`)
-        .join("");
-      sheets += "</select>";
-    } else {
-      sheets = `<span class="sheexcel-reference-cell-sheet">${this._currentSheetName}</span>`;
-    }
-    const refHtml = `<div class="sheexcel-reference-cell">
-                    <input id="sheexcel-cell" type="text" value="" placeholder="${game.i18n.localize(
-                      "SHEEXCELREFRESHL.Cell"
-                    )}">
-                    <input id="sheexcel-keyword" type="text" value="" placeholder="${game.i18n.localize(
-                      "SHEEXCELREFRESH.Keyword"
-                    )}">
-                    ${sheets}
-                    <div class="sheexcel-reference-remove">
-                        <button class="sheexcel-reference-remove-button">${game.i18n.localize(
-                          "SHEEXCELREFRESH.Remove"
-                        )}</button>
-                        <span class="sheexcel-reference-remove-value"></span>
-                    </div>
-                </div>`;
-    references.append(refHtml);
-  }
-
-  _onRemoveReference(event) {
-    event.preventDefault();
-    const parent = event.currentTarget.parentElement.parentElement;
-
-    const siblings = Array.from(parent.parentElement.children);
-
-    const index = siblings.indexOf(parent);
-    this._cellReferences.splice(index, 1);
-    parent.remove();
-  }
-
-  _onSaveReference(event) {
-    event.preventDefault();
-    this._refetchAllCellValues();
-    this._saveFlags();
-  }
-
   async _fetchCellValue(sheetId, sheetName, cellRef) {
     if (cellRef === "") return "";
 
@@ -378,48 +265,6 @@ class SheexcelActorSheet extends ActorSheet {
     return text;
   }
 
-  async _onCellReferenceChange(event) {
-    const index = $(event.currentTarget)
-      .closest(".sheexcel-reference-cell")
-      .index();
-    if (event.currentTarget.id === "sheexcel-cell") {
-      this._cellReferences[index].cell = event.currentTarget.value;
-    } else {
-      this._cellReferences[index].sheet = event.target.value;
-    }
-
-    if (
-      this._cellReferences[index].cell &&
-      this._cellReferences[index].cell.length &&
-      this._cellReferences[index].sheet
-    ) {
-      this._cellReferences[index].value = await this._fetchCellValue(
-        this._sheetId,
-        this._cellReferences[index].sheet,
-        this._cellReferences[index].cell
-      );
-      const span = $(
-        event.currentTarget.parentElement.children[3].lastElementChild
-      );
-      span.text(this._cellReferences[index].value.slice(0, 10));
-    }
-    const ref = foundry.utils.duplicate(this.actor.system.sheexcelrefresh);
-    ref[this._cellReferences[index].keyword] =
-      this._cellReferences[index].value;
-    this.actor.update({ "system.sheexcelrefresh": ref });
-  }
-
-  _onKeywordReferenceChange(event) {
-    const index = $(event.currentTarget)
-      .closest(".sheexcel-reference-cell")
-      .index();
-    this._cellReferences[index].keyword = event.currentTarget.value;
-    const ref = foundry.utils.duplicate(this.actor.system.sheexcelrefresh);
-    ref[this._cellReferences[index].keyword] =
-      this._cellReferences[index].value;
-    this.actor.update({ "system.sheexcelrefresh": ref });
-  }
-
   async _updateCellValue(i) {
     const ref = this._cellReferences[i];
     const value = await this._fetchCellValue(
@@ -428,49 +273,6 @@ class SheexcelActorSheet extends ActorSheet {
       ref.cell
     );
     this._cellReferences[i].value = value;
-  }
-
-  _setupZoom(html, iframe) {
-    const zoomSlider = html.find("#sheexcel-setting-zoom-slider")[0];
-    const zoomValue = html.find("#sheexcel-setting-zoom-value")[0];
-    if (zoomSlider && zoomValue) {
-      zoomSlider.addEventListener("input", event => {
-        const zoomLevel = parseInt(event.target.value);
-        this._currentZoomLevel = zoomLevel;
-        zoomValue.textContent = `${zoomLevel}%`;
-        this._applyZoom(iframe, zoomLevel);
-      });
-    }
-  }
-
-  _applyZoom(iframe, zoomLevel) {
-    if (iframe) {
-      iframe.style.transform = `scale(${zoomLevel / 100})`;
-      iframe.style.transformOrigin = "top left";
-      iframe.style.width = `${100 * (100 / zoomLevel)}%`;
-      iframe.style.height = `${100 * (100 / zoomLevel)}%`;
-    }
-  }
-
-  _setupHideMenu(html, iframe) {
-    const hideMenuCheckbox = html.find("#sheexcel-setting-hide-menu")[0];
-    if (hideMenuCheckbox) {
-      hideMenuCheckbox.addEventListener("change", async event => {
-        const hideMenu = event.target.checked;
-        await this.actor.setFlag("sheexcelrefresh", "hideMenu", hideMenu);
-        this._updateIframeSrc(iframe, hideMenu);
-      });
-    }
-  }
-
-  _updateIframeSrc(iframe, hideMenu) {
-    if (!iframe) return;
-
-    const sheetUrl = this.actor.getFlag("sheexcelrefresh", "sheetUrl");
-    if (!sheetUrl) return;
-
-    const rmParam = hideMenu ? "minimal" : "embedded";
-    iframe.src = `${sheetUrl}?embedded=true&rm=${rmParam}`;
   }
 
   async close(...args) {
