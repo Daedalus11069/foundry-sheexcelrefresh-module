@@ -27,6 +27,6 @@
       "path": "lang/en.json"
     }
   ],
-  "url": "https://github.com/Daedalus11069/foundry-sheexcel-module-refresh",
-  "manifest": "https://raw.githubusercontent.com/Daedalus11069/foundry-sheexcel-module-refresh/main/manifest/module.json"
+  "url": "https://github.com/Daedalus11069/foundry-sheexcelrefresh-module",
+  "manifest": "https://raw.githubusercontent.com/Daedalus11069/foundry-sheexcelrefresh-module/main/manifest/module.json"
 }

@@ -120,7 +120,9 @@ export default defineConfig({
       buildStart() {
         delete ModuleData.scripts;
         ModuleData.version = PackageData.version;
-        ModuleData.download = `https://github.com/Daedalus11069/foundry-sheexcel-module-refresh/releases/download/v${PackageData.version}/sheexcelrefresh_${PackageData.version}.zip`;
+        const downloadUrl =
+          "https://github.com/Daedalus11069/foundry-sheexcelrefresh-module/releases/download";
+        ModuleData.download = `${downloadUrl}/v${PackageData.version}/sheexcelrefresh_${PackageData.version}.zip`;
       }
     },
     generateFile([
