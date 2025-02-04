@@ -139,133 +139,18 @@
     <div class="sheexcel-sidebar" :class="{ collapsed: sidebarCollapsed }">
       <div class="sheexcel-sidebar-tab" v-show="activeTab === 'references'">
         <div class="sheexcel-references-container">
-          <h3>{{ localize("SHEEXCELREFRESH.References") }}</h3>
-          <div class="sheexcel-references" ref="referencesEl">
-            <div
-              class="sheexcel-reference-cell"
-              v-for="(ref, idx) in adjustedReferences"
-              ref="referenceEls"
-            >
-              <input
-                class="sheexcel-cell"
-                type="text"
-                v-model="ref.cell"
-                :placeholder="localize('SHEEXCELREFRESH.Cell')"
-                @input.prevent.stop="onCellReferenceChange(idx, ref)"
-              />
-              <input
-                class="sheexcel-keyword"
-                type="text"
-                v-model="ref.keyword"
-                :placeholder="localize('SHEEXCELREFRESH.Keyword')"
-                @input.prevent.stop="onKeywordReferenceChange(idx)"
-              />
-              <div v-show="sheetNames.length > 1">
-                <select
-                  class="sheexcel-sheet"
-                  name="sheet"
-                  v-model="ref.sheet"
-                  @change.prevent.stop="onCellReferenceChange(idx, ref)"
-                >
-                  <option
-                    :value="sheetName"
-                    v-for="sheetName in sheetNames"
-                    :selected="sheetName === ref.sheet"
-                  >
-                    {{ sheetName }}
-                  </option>
-                </select>
-              </div>
-              <div v-show="sheetNames.length < 1">
-                <span class="sheexcel-reference-cell-sheet">{{
-                  ref.sheet
-                }}</span>
-              </div>
-              <div class="sheexcel-reference-remove">
-                <button
-                  type="button"
-                  class="sheexcel-reference-remove-button"
-                  @click.stop="onRemoveReference(idx)"
-                >
-                  {{ localize("SHEEXCELREFRESH.Remove") }}
-                </button>
-                <span class="sheexcel-reference-remove-value">{{
-                  ref.value
-                }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="sheexcel-references-add">
-            <button
-              type="button"
-              class="sheexcel-reference-add-button"
-              @click.stop="onAddReference"
-            >
-              {{ localize("SHEEXCELREFRESH.AddReference") }}
-            </button>
-          </div>
+          <h3>{{ localize("SHEEXCELREFRESH.References.References") }}</h3>
+          <SheexcelCellReferences
+            v-model="adjustedReferences"
+            v-model:system="system"
+            :sheetNames
+          />
         </div>
       </div>
       <div class="sheexcel-sidebar-tab" v-show="activeTab === 'ranges'">
-        <h3>{{ localize("SHEEXCELREFRESH.Ranges") }}</h3>
         <div class="sheexcel-ranges-container">
-          <div class="sheexcel-ranges" ref="rangeSortableEl">
-            <div v-for="(header, idx) in adjustedRangeHeaders">
-              <div class="range-sort-handle">
-                <div class="fa fa-sort"></div>
-              </div>
-            </div>
-          </div>
-          <div class="sheexcel-ranges">
-            <div
-              class="sheexcel-reference-range"
-              v-for="(ref, idx) in adjustedRanges"
-            >
-              <input
-                class="sheexcel-range"
-                type="text"
-                v-model="ref.range"
-                :placeholder="localize('SHEEXCELREFRESH.Range')"
-                @input.prevent.stop="onCellRangeChange(idx)"
-              />
-              <div v-show="sheetNames.length > 1">
-                <select
-                  class="sheexcel-sheet"
-                  name="sheet"
-                  v-model="ref.sheet"
-                  @change.prevent.stop
-                >
-                  <option
-                    :value="sheetName"
-                    v-for="sheetName in sheetNames"
-                    :selected="sheetName === ref.sheet"
-                  >
-                    {{ sheetName }}
-                  </option>
-                </select>
-              </div>
-              <div v-show="sheetNames.length < 1">
-                <span class="sheexcel-range-cell-sheet">{{ ref.sheet }}</span>
-              </div>
-              <div class="sheexcel-range-remove">
-                <a
-                  class="sheexcel-range-remove-button"
-                  @click="onRemoveRange(idx)"
-                >
-                  {{ localize("SHEEXCELREFRESH.Remove") }}
-                </a>
-              </div>
-            </div>
-          </div>
-          <div class="sheexcel-ranges-add">
-            <button
-              type="button"
-              class="sheexcel-range-add-button"
-              @click="onAddRange"
-            >
-              {{ localize("SHEEXCELREFRESH.AddRange") }}
-            </button>
-          </div>
+          <h3>{{ localize("SHEEXCELREFRESH.Ranges.Ranges") }}</h3>
+          <SheexcelCellRanges v-model="ranges" :sheetNames />
         </div>
       </div>
       <div class="sheexcel-sidebar-tab" v-show="activeTab === 'settings'">
@@ -313,17 +198,10 @@
 </template>
 
 <script setup>
-import {
-  computed,
-  inject,
-  nextTick,
-  onMounted,
-  onUnmounted,
-  ref,
-  useTemplateRef
-} from "vue";
-import { useSortable } from "@vueuse/integrations/useSortable";
+import { computed, inject, onMounted, onUnmounted, ref } from "vue";
 import { localize } from "../libs/vue/VueHelpers";
+import SheexcelCellReferences from "./components/SheexcelCellReferences.vue";
+import SheexcelCellRanges from "./components/SheexcelCellRanges.vue";
 
 const actor = inject("actor");
 const actorSheet = inject("actorSheet");
@@ -336,12 +214,8 @@ const sheetNames = ref(data.value.sheetNames);
 const hideMenu = ref(data.value.hideMenu);
 const sidebarCollapsed = ref(data.value.sidebarCollapsed);
 const zoomLevel = ref(data.value.zoomLevel);
-const referencesElm = useTemplateRef("referencesEl");
-const referenceElms = useTemplateRef("referenceEls");
 const adjustedReferences = ref(data.value.adjustedReferences);
-const adjustedRangeHeaders = ref(data.value.adjustedRangeHeaders);
-const adjustedRanges = ref(data.value.adjustedRanges);
-const rangeSortableElm = useTemplateRef("rangeSortableEl");
+const ranges = ref(data.value.ranges);
 const system = ref(
   foundry.utils.duplicate(actorSheet.actor.system.sheexcelrefresh)
 );
@@ -351,8 +225,6 @@ const iframeSrc = computed(() => {
     hideMenu.value ? "minimal" : "embedded"
   }`;
 });
-
-useSortable(rangeSortableElm, adjustedRanges, { handle: ".range-sort-handle" });
 
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
@@ -364,53 +236,6 @@ const toggleTab = active => {
   activeTab.value = active;
   actorSheet._sidebarCollapsed = sidebarCollapsed.value;
   actorSheet._activeTab = activeTab.value;
-};
-
-const onAddReference = async () => {
-  actorSheet._fetchSheetNames();
-  adjustedReferences.value.push({
-    sheet: actorSheet._currentSheetName,
-    cell: "",
-    keyword: "",
-    value: ""
-  });
-  actorSheet._cellReferences = adjustedReferences.value;
-  await nextTick();
-  referencesElm.value.scrollTop = referencesElm.value.scrollHeight;
-};
-
-const onRemoveReference = async idx => {
-  const prevSibling = referenceElms.value[idx].previousElementSibling;
-  adjustedReferences.value.splice(idx, 1);
-  if (prevSibling !== null) {
-    await nextTick();
-    prevSibling.scrollIntoView();
-  }
-  actorSheet._cellReferences = adjustedReferences.value;
-};
-
-const onCellReferenceChange = async (index, currentRef) => {
-  if (
-    actorSheet._cellReferences[index].cell &&
-    actorSheet._cellReferences[index].cell.length &&
-    actorSheet._cellReferences[index].sheet
-  ) {
-    actorSheet._cellReferences[index].value = await actorSheet._fetchCellValue(
-      actorSheet._sheetId,
-      actorSheet._cellReferences[index].sheet,
-      actorSheet._cellReferences[index].cell
-    );
-  }
-  const ref = system.value;
-  ref[actorSheet._cellReferences[index].keyword] =
-    actorSheet._cellReferences[index].value;
-  currentRef.value = actorSheet._cellReferences[index].value;
-};
-
-const onKeywordReferenceChange = index => {
-  const ref = system.value;
-  ref[actorSheet._cellReferences[index].keyword] =
-    actorSheet._cellReferences[index].value;
 };
 
 const onUpdateSheet = async () => {
@@ -448,6 +273,10 @@ onUnmounted(async () => {
   await actorSheet.actor.update({ "system.sheexcelrefresh": system.value });
 });
 </script>
+
+<style>
+@import "../sheexcel.css";
+</style>
 
 <style lang="scss" scoped>
 .sheexcel-sheet-container {
@@ -550,59 +379,6 @@ onUnmounted(async () => {
     display: flex;
     flex-direction: column;
     height: 100%;
-  }
-
-  .sheexcel-references {
-    flex-grow: 1;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-
-  .sheexcel-reference-cell {
-    flex: 1;
-    flex-direction: row;
-    padding: 5px 5px;
-    margin-bottom: 5px;
-    width: 100%;
-    justify-self: center;
-    background-color: #ffffff;
-  }
-
-  .sheexcel-reference-cell input.sheexcel-cell {
-    width: 45px;
-  }
-
-  .sheexcel-reference-cell input.sheexcel-keyword {
-    width: 98px;
-  }
-
-  .sheexcel-reference-cell select.sheexcel-sheet {
-    max-width: calc(45px + 98px);
-  }
-
-  .sheexcel-reference-remove {
-    flex-direction: row;
-    justify-content: stretch;
-    margin-top: 5px;
-  }
-
-  .sheexcel-reference-remove-value {
-    text-align: center;
-    width: 100%;
-    margin-left: 10px;
-  }
-
-  .sheexcel-reference-remove-button {
-    width: 143px;
-  }
-
-  .sheexcel-reference-remove-save {
-    display: none;
-  }
-
-  .sheexcel-references-add {
-    flex-shrink: 0;
-    margin-top: auto;
   }
 
   .sheexcel-settings-container {

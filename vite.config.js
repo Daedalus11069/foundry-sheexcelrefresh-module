@@ -1,7 +1,8 @@
-import ModuleData from "./src/module.json";
+import ModuleData from "./module.json";
 import PackageData from "./package.json";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import tailwindcss from "@tailwindcss/vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import generateFile from "vite-plugin-generate-file";
 import { resolve } from "path";
@@ -77,8 +78,7 @@ export default defineConfig({
         `modules/${ModuleData.id}/@id`,
         `modules/${ModuleData.id}/.*?/env.mjs$`,
         `modules/${ModuleData.id}/node_modules/.vite/.*`,
-        `modules/${ModuleData.id}/src/`,
-        `/${ModuleData.id}/`
+        `modules/${ModuleData.id}/src/`
       ].join("|") +
       ")"]: "http://localhost:30000",
 
@@ -101,7 +101,7 @@ export default defineConfig({
     minify: false,
     target: ["es2022"],
     lib: {
-      entry: "./src/scripts/sheexcel.js",
+      entry: "./src/sheexcel.js",
       formats: ["es"],
       fileName: "scripts/sheexcel",
       cssFileName: "styles/sheexcel"
@@ -115,11 +115,14 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    tailwindcss(),
     {
       name: "vite-plugin-prebuild",
       buildStart() {
         delete ModuleData.scripts;
         ModuleData.version = PackageData.version;
+        ModuleData.esmodules = ["scripts/sheexcel.js"];
+        ModuleData.styles = ["styles/sheexcel.css"];
         const downloadUrl =
           "https://github.com/Daedalus11069/foundry-sheexcelrefresh-module/releases/download";
         ModuleData.download = `${downloadUrl}/v${PackageData.version}/sheexcelrefresh_${PackageData.version}.zip`;
@@ -140,7 +143,7 @@ export default defineConfig({
       }
     ]),
     viteStaticCopy({
-      targets: [{ src: "src/lang", dest: "" }]
+      targets: [{ src: "lang", dest: "" }]
     })
   ]
 });
