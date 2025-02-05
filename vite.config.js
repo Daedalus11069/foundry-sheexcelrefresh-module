@@ -135,12 +135,6 @@ export default defineConfig({
         template: "src/module.ejs",
         output: "module.json",
         data: { ModuleData }
-      },
-      {
-        type: "template",
-        template: "src/module.ejs",
-        output: "../manifest/module.json",
-        data: { ModuleData }
       }
     ]),
     viteStaticCopy({
