@@ -1,3 +1,4 @@
+import { resolve } from "path";
 import ModuleData from "./module.json";
 import PackageData from "./package.json";
 import { defineConfig } from "vite";
@@ -5,7 +6,7 @@ import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import generateFile from "vite-plugin-generate-file";
-import { resolve } from "path";
+import zipPack from "vite-plugin-zip-pack";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -144,6 +145,11 @@ export default defineConfig({
     ]),
     viteStaticCopy({
       targets: [{ src: "lang", dest: "" }]
+    }),
+    zipPack({
+      inDir: "dist",
+      outDir: "dist-zip",
+      outFileName: `${ModuleData.id}_${PackageData.version}.zip`
     })
   ]
 });
