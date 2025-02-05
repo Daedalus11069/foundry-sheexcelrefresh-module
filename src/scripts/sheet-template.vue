@@ -23,8 +23,8 @@
       </div>
     </section>
     <nav class="sheexcel-sheet-tabs">
-      <a class="sheexcel-sheet-toggle" @click="toggleSidebar">
-        <div class="sheexcel-sheet-tab-icon">
+      <a @click="toggleSidebar">
+        <div>
           <svg
             width="30"
             height="24"
@@ -60,11 +60,10 @@
         </div>
       </a>
       <a
-        class="sheexcel-sheet-references"
         :class="{ active: activeTab === 'references' }"
         @click="toggleTab('references')"
       >
-        <div class="sheexcel-sheet-tab-icon">
+        <div>
           <svg
             width="30"
             height="24"
@@ -88,7 +87,6 @@
         </div>
       </a>
       <a
-        class="sheexcel-sheet-ranges"
         :class="{ active: activeTab === 'ranges' }"
         @click="toggleTab('ranges')"
       >
@@ -115,7 +113,6 @@
         </div>
       </a>
       <a
-        class="sheexcel-sheet-settings"
         :class="{ active: activeTab === 'settings' }"
         @click="toggleTab('settings')"
       >
@@ -275,7 +272,28 @@ onUnmounted(async () => {
 </script>
 
 <style>
-@import "../sheexcel.css";
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@plugin "flowbite/plugin";
+@source "../node_modules/flowbite";
+
+@utility m-* {
+  margin: calc(--value(ratio) * 100%);
+}
+@utility mt-* {
+  margin-top: calc(--value(ratio) * 100%);
+}
+@utility mb-* {
+  margin-bottom: calc(--value(ratio) * 100%);
+}
+@utility ms-* {
+  margin-left: calc(--value(ratio) * 100%);
+}
+@utility me-* {
+  margin-right: calc(--value(ratio) * 100%);
+}
 </style>
 
 <style lang="scss" scoped>
@@ -288,7 +306,7 @@ onUnmounted(async () => {
 
   .sheexcel-sheet-header {
     flex: 0 0 auto;
-    padding: 0px 265px 0px 0px;
+    padding: 0px 504px 0px 0px;
     border-bottom: 1px solid #ddd;
   }
 
@@ -346,7 +364,6 @@ onUnmounted(async () => {
     position: absolute;
     display: flex;
     flex-direction: column;
-    gap: 5px;
     top: 50px;
     right: 5px;
     bottom: 5px;
@@ -376,6 +393,12 @@ onUnmounted(async () => {
   }
 
   .sheexcel-references-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .sheexcel-ranges-container {
     display: flex;
     flex-direction: column;
     height: 100%;

@@ -22,6 +22,7 @@
     "@vueuse/core": "^12.5.0",
     "@vueuse/integrations": "^12.5.0",
     "csv-simple-parser": "^2.0.2",
+    "flowbite": "^3.1.1",
     "nanoid": "^5.0.9",
     "sortablejs": "^1.15.6",
     "tailwindcss": "^4.0.3",

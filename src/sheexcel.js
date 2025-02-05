@@ -146,7 +146,24 @@ Hooks.once("init", async function () {
 
       data[range.name] = csvData.reduce((carry, row) => {
         const rowData = range.headers.reduce((headerCarry, header) => {
-          headerCarry[header.name] = row[header.name];
+          let colData = row[header.name].trim();
+          if (
+            typeof header.default !== "undefined" &&
+            header.default !== "" &&
+            (colData === "" ||
+              colData === null ||
+              typeof colData === "undefined")
+          ) {
+            colData = header.default;
+          }
+          if (header.type === "number") {
+            colData = window.parseFloat(colData);
+          } else {
+            if (header.options.lowerCase) {
+              colData = colData.toLowerCase();
+            }
+          }
+          headerCarry[header.name] = colData;
           return headerCarry;
         }, {});
         carry.push(rowData);
@@ -192,7 +209,7 @@ Hooks.once("init", async function () {
         await actor.refreshCellValues();
       }
     },
-    refreshRangeValues: async actorId => {
+    refreshAllRangeValues: async actorId => {
       const actor = game.actors.get(actorId);
       if (actor && actor.system.sheexcelrefresh) {
         await actor.refreshRangeValues();
@@ -352,6 +369,7 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
       activeTab: this._activeTab,
       cellReferences: this._cellReferences,
       ranges: this._ranges,
+      adjustedRanges: this._adjustedRanges,
       currentSheetName: this._currentSheetName,
       sheetNames: this._sheetNames
     };

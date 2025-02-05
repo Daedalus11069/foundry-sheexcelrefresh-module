@@ -21,12 +21,17 @@
       "Header": "Header",
       "Headers": "Headers",
       "HeaderName": "Name",
-      "HeaderIndex": "Index",
+      "HeaderIndex": "Column Index",
       "HeaderType": "Type",
+      "HeaderDefault": "Default",
+      "HeaderPlaceholderDefault": "Default Value",
       "HeaderTypes": {
         "text": "Text",
-        "number": "Number",
-        "key": "Key"
+        "number": "Number"
+      },
+      "HeaderOptions": "Options",
+      "HeaderOption": {
+        "LowerCase": "Lower Case"
       },
       "AddHeader": "Add Header",
       "AddRange": "Add Range",

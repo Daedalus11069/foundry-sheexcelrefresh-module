@@ -1,0 +1,99 @@
+{
+  "version": 1.1,
+  "atDirectives": [
+    {
+      "name": "@theme",
+      "description": "Use the @theme directive to define your project's custom design tokens, like fonts, colors, and breakpoints.",
+      "references": [
+        {
+          "name": "Tailwind Documentation",
+          "url": "https://tailwindcss.com/docs/theme"
+        }
+      ]
+    },
+    {
+      "name": "@source",
+      "description": "Use the `@source` directive to explicitly specify source files that aren't picked up by Tailwind's automatic content detection.",
+      "references": [
+        {
+          "name": "Tailwind Documentation",
+          "url": "https://tailwindcss.com/docs/detecting-classes-in-source-files"
+        }
+      ]
+    },
+    {
+      "name": "@config",
+      "description": "Use the `@config` directive to load a legacy JavaScript-based configuration file.\n\nThe `corePlugins`, `safelist` and `separator` options from the JavaScript-based config are not supported in v4.0.",
+      "references": [
+        {
+          "name": "Tailwind Documentation",
+          "url": "https://tailwindcss.com/docs/functions-and-directives#config-directive"
+        }
+      ]
+    },
+    {
+      "name": "@plugin",
+      "description": "Use the `@plugin` directive to load a legacy JavaScript-based plugin.\n\nThe `@plugin` directive accepts either a package name or a local path.",
+      "references": [
+        {
+          "name": "Tailwind Documentation",
+          "url": "https://tailwindcss.com/docs/functions-and-directives#plugin-directive"
+        }
+      ]
+    },
+    {
+      "name": "@utility",
+      "description": "Use the `@utility` directive to add custom utilities to your project that work with variants like hover, focus and lg.",
+      "references": [
+        {
+          "name": "Tailwind Documentation",
+          "url": "https://tailwindcss.com/docs/adding-custom-styles#adding-custom-utilities"
+        }
+      ]
+    },
+    {
+      "name": "@variant",
+      "description": "Use the `@variant` directive to apply a Tailwind variant to styles in your CSS.",
+      "references": [
+        {
+          "name": "Tailwind Documentation",
+          "url": "https://tailwindcss.com/docs/hover-focus-and-other-states"
+        }
+      ]
+    },
+    {
+      "name": "@custom-variant",
+      "description": "Use the `@custom-variant` directive to add a custom variant in your project.",
+      "references": [
+        {
+          "name": "Tailwind Documentation",
+          "url": "https://tailwindcss.com/docs/hover-focus-and-other-states#registering-a-custom-variant"
+        }
+      ]
+    },
+    {
+      "name": "@apply",
+      "description": "Use the @apply directive to inline any existing utility classes into your own custom CSS."
+    },
+    {
+      "name": "@reference",
+      "description": "If you want to use `@apply` or `@variant` in the `<style>` block of a Vue or Svelte component, or within CSS modules, you will need to import your theme variables, custom utilities, and custom variants to make those values available in that context.\n\nTo do this without duplicating any CSS in your output, use the `@reference` directive to import your main stylesheet for reference without actually including the styles.",
+      "references": [
+        {
+          "name": "Tailwind Documentation",
+          "url": "https://tailwindcss.com/docs/hover-focus-and-other-states#registering-a-custom-variant"
+        }
+      ]
+    },
+    {
+      "name": "@reference",
+      "description": "If you want to use `@apply` or `@variant` in the `<style>` block of a Vue or Svelte component, or within CSS modules, you will need to import your theme variables, custom utilities, and custom variants to make those values available in that context.\n\nTo do this without duplicating any CSS in your output, use the `@reference` directive to import your main stylesheet for reference without actually including the styles.",
+      "references": [
+        {
+          "name": "Tailwind Documentation",
+          "url": "https://tailwindcss.com/docs/hover-focus-and-other-states#registering-a-custom-variant"
+        }
+      ]
+    }
+  ]
+}
