@@ -272,28 +272,7 @@ onUnmounted(async () => {
 </script>
 
 <style>
-@layer theme, base, components, utilities;
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
-
-@plugin "flowbite/plugin";
-@source "../node_modules/flowbite";
-
-@utility m-* {
-  margin: calc(--value(ratio) * 100%);
-}
-@utility mt-* {
-  margin-top: calc(--value(ratio) * 100%);
-}
-@utility mb-* {
-  margin-bottom: calc(--value(ratio) * 100%);
-}
-@utility ms-* {
-  margin-left: calc(--value(ratio) * 100%);
-}
-@utility me-* {
-  margin-right: calc(--value(ratio) * 100%);
-}
+@import "../sheexcel.css";
 </style>
 
 <style lang="scss" scoped>
@@ -339,25 +318,22 @@ onUnmounted(async () => {
     background: #eeeeee;
     color: #151515;
     border: none;
-  }
-
-  .sheexcel-sheet-tabs a {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-  }
-
-  .sheexcel-sheet-tabs a:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-
-  .sheexcel-sheet-tabs a.active {
-    box-shadow: inset 0 0 5px rgba(255, 165, 0, 0.2),
-      inset 0 0 10px rgba(255, 100, 0, 0.3);
-    transition: box-shadow 0.3s ease;
+    a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+      &.active {
+        box-shadow: inset 0 0 5px rgba(255, 165, 0, 0.2),
+          inset 0 0 10px rgba(255, 100, 0, 0.3);
+        transition: box-shadow 0.3s ease;
+      }
+    }
   }
 
   .sheexcel-sidebar {
@@ -381,14 +357,6 @@ onUnmounted(async () => {
 
   .sheexcel-sidebar-tab {
     flex-direction: column;
-    height: 100%;
-  }
-
-  .sheexcel-sidebar-tab-icon {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
     height: 100%;
   }
 
