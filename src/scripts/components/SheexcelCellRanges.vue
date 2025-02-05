@@ -47,7 +47,7 @@
                   <input type="text" class="sheet-input" v-model="range.name" />
                 </div>
               </div>
-              <div class="basis-4/12 ms-8">
+              <div class="basis-4/12 ms-8 pe-[0.1rem]">
                 <button type="button" @click="onRemoveRange(rangeIdx)">
                   {{ localize("SHEEXCELREFRESH.Remove") }}
                   {{ localize("SHEEXCELREFRESH.Ranges.Range") }}
@@ -149,7 +149,7 @@
                       </select>
                     </div>
                     <div class="basis-3/12">
-                      <div class="ms-2">
+                      <div class="ms-2 pe-[0.1rem]">
                         <button
                           type="button"
                           @click="onRemoveHeader(range, headerIdx)"
