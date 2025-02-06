@@ -31,7 +31,9 @@
       },
       "HeaderOptions": "Options",
       "HeaderOption": {
-        "LowerCase": "Lower Case"
+        "LowerCase": "Lower Case",
+        "Identifier": "Identifier",
+        "IdentifierHelp": "Turns the resulting data into a identifier; a bit of text fit to serve as a key for a key/value pair."
       },
       "AddHeader": "Add Header",
       "AddRange": "Add Range",

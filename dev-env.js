@@ -6,4 +6,4 @@ document.head.prepend(hmr);
 const lib = document.createElement("script");
 lib.src = "/modules/sheexcelrefresh/src/sheexcel.js";
 lib.type = "module";
-document.head.prepend(lib);
+document.head.appendChild(lib);

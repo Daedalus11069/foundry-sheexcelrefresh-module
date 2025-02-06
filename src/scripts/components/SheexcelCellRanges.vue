@@ -114,10 +114,12 @@
                       <input
                         type="text"
                         class="sheet-input"
-                        v-model="header.name"
                         :placeholder="
                           localize('SHEEXCELREFRESH.Ranges.HeaderName')
                         "
+                        v-maska="'a'"
+                        data-maska-tokens="a:[a-zA-Z0-9]:repeated"
+                        v-model="header.name"
                       />
                     </div>
                     <div class="basis-3/12">
@@ -133,7 +135,10 @@
                       />
                     </div>
                     <div class="basis-3/12">
-                      <select v-model="header.type">
+                      <select
+                        v-model="header.type"
+                        @change="onDisableTextOptions(header)"
+                      >
                         <option value="text">
                           {{
                             localize("SHEEXCELREFRESH.Ranges.HeaderTypes.text")
@@ -181,19 +186,57 @@
                         {{ localize("SHEEXCELREFRESH.Ranges.HeaderOptions") }}:
                       </label>
                       <div class="flex items-center mb-4">
-                        <input
-                          :id="`${header.id}-checkbox-lc`"
-                          class="w-5! h-5! text-blue-600 bg-gray-100 border-gray-300 rounded-sm ring-1 ring-gray-400 focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2"
-                          type="checkbox"
-                          v-model="header.options.lowerCase"
-                        />
                         <label
+                          class="ms-2 text-sm font-medium inert:opacity-50"
                           :for="`${header.id}-checkbox-lc`"
-                          class="ms-2 text-sm font-medium"
+                          :inert="header.type !== 'text'"
                         >
+                          <input
+                            :id="`${header.id}-checkbox-lc`"
+                            class="w-5! h-5! text-blue-600 bg-gray-100 border-gray-300 rounded-sm ring-1 ring-gray-500 hover:ring-gray-600"
+                            :class="{
+                              'focus:ring-blue-500 dark:focus:ring-blue-600':
+                                header.type === 'text'
+                            }"
+                            type="checkbox"
+                            :disabled="header.type !== 'text'"
+                            v-model="header.options.lowerCase"
+                          />
                           {{
                             localize(
                               "SHEEXCELREFRESH.Ranges.HeaderOption.LowerCase"
+                            )
+                          }}
+                        </label>
+                        <label
+                          class="ms-2 text-sm font-medium inert:opacity-50"
+                          :for="`${header.id}-checkbox-id`"
+                          :inert="header.type !== 'text'"
+                          :title="
+                            localize(
+                              'SHEEXCELREFRESH.Ranges.HeaderOption.IdentifierHelp'
+                            )
+                          "
+                        >
+                          <input
+                            :id="`${header.id}-checkbox-id`"
+                            class="w-5! h-5! text-blue-600 bg-gray-100 border-gray-300 rounded-sm ring-1 ring-gray-500 hover:ring-gray-600"
+                            :class="{
+                              'focus:ring-blue-500 dark:focus:ring-blue-600':
+                                header.type === 'text'
+                            }"
+                            type="checkbox"
+                            :title="
+                              localize(
+                                'SHEEXCELREFRESH.Ranges.HeaderOption.IdentifierHelp'
+                              )
+                            "
+                            :disabled="header.type !== 'text'"
+                            v-model="header.options.identifier"
+                          />
+                          {{
+                            localize(
+                              "SHEEXCELREFRESH.Ranges.HeaderOption.Identifier"
                             )
                           }}
                         </label>
@@ -223,6 +266,7 @@
 <script setup>
 import { inject, onMounted, onUnmounted } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
+import { vMaska } from "maska/vue";
 import { nanoid } from "nanoid";
 import { initFlowbite } from "flowbite";
 import { localize } from "../../libs/vue/VueHelpers";
@@ -268,9 +312,15 @@ const onAddHeader = range => {
     type: "text",
     default: "",
     options: {
-      lowerCase: false
+      lowerCase: false,
+      identifier: false
     }
   });
+};
+
+const onDisableTextOptions = header => {
+  header.options.lowerCase = false;
+  header.options.identifier = false;
 };
 
 const onSortHeadersByIndex = range => {

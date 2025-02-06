@@ -1,6 +1,7 @@
 import { inferSchema, initParser } from "udsv";
 import parse from "csv-simple-parser";
 import VueSheet from "./libs/vue/VueSheet";
+import { stringToIdentifier } from "./libs/utils";
 import VueSheetTemplate from "./scripts/sheet-template.vue";
 
 Hooks.once("init", async function () {
@@ -16,14 +17,16 @@ Hooks.once("init", async function () {
 
     this.system.sheexcelrefresh = {};
     for (const ref of this.getFlag("sheexcelrefresh", "cellReferences") || []) {
-      if (ref.keyword && ref.value !== undefined) {
+      if (ref.keyword && ref.keyword !== "" && ref.value !== undefined) {
         this.system.sheexcelrefresh[ref.keyword] = ref.value;
       }
     }
     const adjustedRanges =
       this.getFlag("sheexcelrefresh", "adjustedRanges") || [];
     for (const { name, data } of adjustedRanges) {
-      this.system.sheexcelrefresh[name] = data;
+      if (name !== "") {
+        this.system.sheexcelrefresh[name] = data;
+      }
     }
   };
 
@@ -124,29 +127,14 @@ Hooks.once("init", async function () {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const headers = range.headers.reduce(
-        (carry, header, idx) => {
-          if (header.index > 0) {
-            let count = carry.index + 1;
-            for (; count < header.index; count++) {
-              carry.headers.push(`-${idx}-${count}-`);
-            }
-            carry.index = count;
-          }
-          carry.headers.push(header.name);
-          return carry;
-        },
-        { headers: [], index: 0 }
-      ).headers;
-
       const csvStr = (await response.text()).trim();
-      const csvData = parse(headers.join(",") + "\n" + csvStr, {
-        header: true
+      const csvData = parse(csvStr, {
+        header: false
       });
 
       data[range.name] = csvData.reduce((carry, row) => {
         const rowData = range.headers.reduce((headerCarry, header) => {
-          let colData = row[header.name].trim();
+          let colData = row[header.index].trim();
           if (
             typeof header.default !== "undefined" &&
             header.default !== "" &&
@@ -161,6 +149,9 @@ Hooks.once("init", async function () {
           } else {
             if (header.options.lowerCase) {
               colData = colData.toLowerCase();
+            }
+            if (header.options.identifier) {
+              colData = stringToIdentifier(colData);
             }
           }
           headerCarry[header.name] = colData;
