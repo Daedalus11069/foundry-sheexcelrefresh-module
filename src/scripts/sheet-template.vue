@@ -206,8 +206,10 @@ const actorSheet = inject("actorSheet");
 const data = ref(actorSheet.getData());
 
 const activeTab = ref(data.value.activeTab);
+const sheetId = ref(data.value.sheetId);
 const sheetUrl = ref(data.value.sheetUrl);
 const sheetNames = ref(data.value.sheetNames);
+const currentSheetName = ref(data.value.currentSheetName);
 const hideMenu = ref(data.value.hideMenu);
 const sidebarCollapsed = ref(data.value.sidebarCollapsed);
 const zoomLevel = ref(data.value.zoomLevel);
@@ -225,21 +227,18 @@ const iframeSrc = computed(() => {
 
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
-  actorSheet._sidebarCollapsed = sidebarCollapsed.value;
 };
 
 const toggleTab = active => {
   sidebarCollapsed.value = false;
   activeTab.value = active;
-  actorSheet._sidebarCollapsed = sidebarCollapsed.value;
-  actorSheet._activeTab = activeTab.value;
 };
 
 const onUpdateSheet = async () => {
   if (!sheetUrl.value) {
-    actorSheet.sheetId = null;
-    actorSheet.currentSheetName = null;
-    actorSheet.sheetNames = [];
+    sheetId.value = null;
+    currentSheetName.value = null;
+    sheetNames.value = [];
     return;
   }
 
@@ -247,18 +246,12 @@ const onUpdateSheet = async () => {
     /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/
   );
   if (sheetIdMatch) {
+    sheetId.value = sheetIdMatch[1];
     actorSheet._sheetId = sheetIdMatch[1];
     await actorSheet._fetchSheetNames();
   }
 
-  await actor.setFlag("sheexcelrefresh", "sheetId", actorSheet._sheetId);
-  await actor.setFlag(
-    "sheexcelrefresh",
-    "sheetName",
-    actorSheet._currentSheetName
-  );
-  await actor.setFlag("sheexcelrefresh", "sheetNames", actorSheet._sheetNames);
-  await actor.setFlag("sheexcelrefresh", "sheetUrl", sheetUrl.value);
+  actorSheet._sheetUrl = sheetUrl.value;
 };
 
 onMounted(() => {
@@ -266,6 +259,11 @@ onMounted(() => {
 });
 
 onUnmounted(async () => {
+  actorSheet._sheetId = sheetId.value;
+  actorSheet._currentSheetName = currentSheetName.value;
+  actorSheet._sheetNames = sheetNames.value;
+  actorSheet._sidebarCollapsed = sidebarCollapsed.value;
+  actorSheet._activeTab = activeTab.value;
   await actorSheet._saveFlags();
   await actorSheet.actor.update({ "system.sheexcelrefresh": system.value });
 });

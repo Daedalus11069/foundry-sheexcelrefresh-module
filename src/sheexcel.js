@@ -250,6 +250,7 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
   getData() {
     const data = super.getData();
     data.sheetUrl = this.actor.getFlag("sheexcelrefresh", "sheetUrl") || "";
+    data.sheetId = this.actor.getFlag("sheexcelrefresh", "sheetId") || "";
     data.zoomLevel = this._currentZoomLevel;
     data.hideMenu = this.actor.getFlag("sheexcelrefresh", "hideMenu") || true;
     data.sidebarCollapsed = this._sidebarCollapsed;
@@ -355,6 +356,8 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
   async _saveFlags() {
     if (!game.user.isGM && !this.actor.isOwner) return;
     const flags = {
+      sheetUrl: this._sheetUrl,
+      sheetId: this._sheetId,
       zoomLevel: this._currentZoomLevel,
       sidebarCollapsed: this._sidebarCollapsed,
       activeTab: this._activeTab,
@@ -362,6 +365,7 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
       ranges: this._ranges,
       adjustedRanges: this._adjustedRanges,
       currentSheetName: this._currentSheetName,
+      sheetName: this._currentSheetName,
       sheetNames: this._sheetNames
     };
     await this.actor.update({
