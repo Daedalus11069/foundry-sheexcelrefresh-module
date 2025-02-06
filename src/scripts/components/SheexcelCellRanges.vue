@@ -295,7 +295,7 @@ const onAddRange = async () => {
 const onRemoveRange = idx => {
   if (
     window.confirm(
-      localize("SHEEXCELREFRESH.Ranges.AreYouSure", {
+      localize("SHEEXCELREFRESH.AreYouSure", {
         thing: localize("SHEEXCELREFRESH.Ranges.Range").toLowerCase()
       })
     )
@@ -330,7 +330,7 @@ const onSortHeadersByIndex = range => {
 const onRemoveHeader = (range, idx) => {
   if (
     window.confirm(
-      localize("SHEEXCELREFRESH.Ranges.AreYouSure", {
+      localize("SHEEXCELREFRESH.AreYouSure", {
         thing: localize("SHEEXCELREFRESH.Ranges.Header").toLowerCase()
       })
     )

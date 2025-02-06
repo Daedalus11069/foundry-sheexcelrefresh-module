@@ -77,13 +77,21 @@ const cellWidth = ref("60px");
 const keywordWidth = ref("110px");
 
 const onRemoveReference = async idx => {
-  const prevSibling = referenceElms.value[idx].previousElementSibling;
-  model.value.splice(idx, 1);
-  if (prevSibling !== null) {
-    await nextTick();
-    prevSibling.scrollIntoView();
+  if (
+    window.confirm(
+      localize("SHEEXCELREFRESH.AreYouSure", {
+        thing: localize("SHEEXCELREFRESH.References.Reference").toLowerCase()
+      })
+    )
+  ) {
+    const prevSibling = referenceElms.value[idx].previousElementSibling;
+    model.value.splice(idx, 1);
+    if (prevSibling !== null) {
+      await nextTick();
+      prevSibling.scrollIntoView();
+    }
+    actorSheet._cellReferences = model.value;
   }
-  actorSheet._cellReferences = model.value;
 };
 
 const onCellReferenceChange = async (index, currentRef) => {
