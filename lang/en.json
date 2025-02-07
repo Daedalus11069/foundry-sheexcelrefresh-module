@@ -44,8 +44,13 @@
     "AreYouSure": "Are you sure you want to remove this {thing}?\nThis action cannot be undone.",
     "DoYouWantTo": "Are you sure you want to {action} this {thing}?",
     "Settings": "Settings",
+    "ExportConfig": "Export Config",
+    "ImportConfig": "Import Config",
     "Warn": {
       "NoSheetURL": "No sheet URL set."
+    },
+    "Error": {
+      "FailedLoadingConfig": "Config for {actor} failed to load! Error message: {error}"
     }
   }
 }

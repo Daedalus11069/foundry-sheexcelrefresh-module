@@ -188,6 +188,18 @@
             />
             <span>{{ localize("SHEEXCELREFRESH.HideMenu") }}</span>
           </div>
+          <div class="flex flex-row gap-x-2">
+            <div class="basis-6/12">
+              <button type="button" @click="onExportConfig">
+                {{ localize("SHEEXCELREFRESH.ExportConfig") }}
+              </button>
+            </div>
+            <div class="basis-6/12">
+              <button type="button" @click="open">
+                {{ localize("SHEEXCELREFRESH.ImportConfig") }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -196,9 +208,14 @@
 
 <script setup>
 import { computed, inject, onMounted, onUnmounted, ref } from "vue";
+import { promiseTimeout, useFileDialog } from "@vueuse/core";
+import { saveAs } from "file-saver";
+import { FileReader } from "@tanker/file-reader";
 import { localize } from "../libs/vue/VueHelpers";
+import { deepUnref } from "../libs/utils";
 import SheexcelCellReferences from "./components/SheexcelCellReferences.vue";
 import SheexcelCellRanges from "./components/SheexcelCellRanges.vue";
+import { initFlowbite } from "flowbite";
 
 const actor = inject("actor");
 const actorSheet = inject("actorSheet");
@@ -218,6 +235,11 @@ const ranges = ref(data.value.ranges);
 const system = ref(
   foundry.utils.duplicate(actorSheet.actor.system.sheexcelrefresh)
 );
+
+const { open, onChange } = useFileDialog({
+  accept: "*.json",
+  multiple: false
+});
 
 const iframeSrc = computed(() => {
   return `${sheetUrl.value}?embedded=true&rm=${
@@ -253,6 +275,52 @@ const onUpdateSheet = async () => {
 
   actorSheet._sheetUrl = sheetUrl.value;
 };
+
+const onExportConfig = () => {
+  const config = deepUnref({
+    activeTab,
+    sheetId,
+    sheetUrl,
+    sheetNames,
+    currentSheetName,
+    hideMenu,
+    sidebarCollapsed,
+    zoomLevel,
+    adjustedReferences,
+    ranges
+  });
+  const blob = new Blob([JSON.stringify(config)], {
+    type: "application/json;charset=utf-8"
+  });
+  saveAs(blob, "sheexcelrefresh_config.json");
+};
+
+onChange(async fileList => {
+  const reader = new FileReader(fileList[0]);
+  try {
+    const configData = JSON.parse(await reader.readAsText("UTF-8"));
+    activeTab.value = configData.activeTab;
+    sheetId.value = configData.sheetId;
+    sheetUrl.value = configData.sheetUrl;
+    sheetNames.value = configData.sheetNames;
+    currentSheetName.value = configData.currentSheetName;
+    hideMenu.value = configData.hideMenu;
+    sidebarCollapsed.value = configData.sidebarCollapsed;
+    zoomLevel.value = configData.zoomLevel;
+    adjustedReferences.value = configData.adjustedReferences;
+    ranges.value = configData.ranges;
+
+    await promiseTimeout(0);
+    initFlowbite();
+  } catch (e) {
+    ui.notifications.error(
+      localize("SHEEXCELREFRESH.Error.FailedLoadingConfig", {
+        actor: actor.name,
+        error: e.message
+      })
+    );
+  }
+});
 
 onMounted(() => {
   data.value = actorSheet.getData();
