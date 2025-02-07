@@ -44,7 +44,13 @@
                   {{ localize("SHEEXCELREFRESH.Ranges.Name") }}:
                 </label>
                 <div class="basis-8/12">
-                  <input type="text" class="sheet-input" v-model="range.name" />
+                  <input
+                    type="text"
+                    class="sheet-input"
+                    v-maska="'a'"
+                    data-maska-tokens="a:[a-zA-Z0-9]:repeated"
+                    v-model="range.name"
+                  />
                 </div>
               </div>
               <div class="basis-4/12 ms-8 pe-[0.1rem]">
