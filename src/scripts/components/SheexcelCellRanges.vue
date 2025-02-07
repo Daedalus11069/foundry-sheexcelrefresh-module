@@ -177,7 +177,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="flex flex-row">
+                  <div class="flex flex-row mb-2">
                     <div class="basis-3/12">
                       <label>
                         {{ localize("SHEEXCELREFRESH.Ranges.HeaderDefault") }}:
@@ -197,7 +197,7 @@
                       <label>
                         {{ localize("SHEEXCELREFRESH.Ranges.HeaderOptions") }}:
                       </label>
-                      <div class="flex items-center mb-4">
+                      <div class="flex items-center">
                         <label
                           class="ms-2 text-sm font-medium inert:opacity-50"
                           :for="`${header.id}-checkbox-lc`"
@@ -252,6 +252,30 @@
                             )
                           }}
                         </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex flex-row mb-4">
+                    <div class="basis-4/12">
+                      <div
+                        class="text-sm font-medium inert:opacity-50"
+                        :inert="header.type !== 'text'"
+                      >
+                        <input
+                          type="text"
+                          :disabled="header.type !== 'text'"
+                          :title="
+                            localize(
+                              'SHEEXCELREFRESH.Ranges.HeaderOption.FormatValueHelp'
+                            )
+                          "
+                          :placeholder="
+                            localize(
+                              'SHEEXCELREFRESH.Ranges.HeaderOption.FormatValue'
+                            )
+                          "
+                          v-model="header.options.formatValue"
+                        />
                       </div>
                     </div>
                   </div>
@@ -344,7 +368,8 @@ const onAddHeader = range => {
     default: "",
     options: {
       lowerCase: false,
-      identifier: false
+      identifier: false,
+      formatValue: ""
     }
   });
 };

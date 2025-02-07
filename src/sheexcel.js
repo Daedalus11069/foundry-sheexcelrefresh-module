@@ -1,5 +1,6 @@
 import { inferSchema, initParser } from "udsv";
 import parse from "csv-simple-parser";
+import { dollar as phrase } from "paraphrase";
 import VueSheet from "./libs/vue/VueSheet";
 import { stringToIdentifier } from "./libs/utils";
 import VueSheetTemplate from "./scripts/sheet-template.vue";
@@ -147,6 +148,9 @@ Hooks.once("init", async function () {
           if (header.type === "number") {
             colData = window.parseFloat(colData);
           } else {
+            if (header.options.formatValue !== "") {
+              colData = phrase(header.options.formatValue, { Value: colData });
+            }
             if (header.options.lowerCase) {
               colData = colData.toLowerCase();
             }

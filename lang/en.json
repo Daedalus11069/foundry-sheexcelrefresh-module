@@ -35,7 +35,9 @@
       "HeaderOption": {
         "LowerCase": "Lower Case",
         "Identifier": "Identifier",
-        "IdentifierHelp": "Turns the resulting data into a identifier; a bit of text fit to serve as a key for a key/value pair."
+        "IdentifierHelp": "Turns the resulting data into a identifier; a bit of text fit to serve as a key for a key/value pair.",
+        "FormatValue": "Format Value",
+        "FormatValueHelp": "Formats the value of the field.  ${Value} can be used as a placeholder for the unformatted value."
       },
       "AddHeader": "Add Header",
       "AddRange": "Add Range"
