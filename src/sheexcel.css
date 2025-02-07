@@ -1,5 +1,6 @@
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
 
 @plugin "flowbite/plugin";
@@ -19,4 +20,8 @@
 }
 @utility me-* {
   margin-right: calc(--value(ratio) * 100%);
+}
+
+.checkbox input[type="checkbox"] {
+  height: 16px !important;
 }
