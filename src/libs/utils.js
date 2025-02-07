@@ -1,5 +1,6 @@
 import { isRef, toRaw, toValue } from "vue";
 import { isObject } from "@vueuse/core";
+import camelcase from "camelcase";
 
 const stringToIdentifier = str => {
   // Replace invalid characters with underscores and remove leading/trailing underscores
@@ -14,7 +15,7 @@ const stringToIdentifier = str => {
     return "_default";
   }
 
-  return identifier;
+  return camelcase(identifier);
 };
 
 function deepUnref(val) {

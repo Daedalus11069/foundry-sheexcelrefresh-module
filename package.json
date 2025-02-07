@@ -1,6 +1,6 @@
 {
   "name": "sheexcelrefresh",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "title": "SheExcel Module Refresh",
   "type": "module",
   "main": "index.js",
@@ -22,6 +22,7 @@
     "@tanker/file-reader": "^4.3.0",
     "@vueuse/core": "^12.5.0",
     "@vueuse/integrations": "^12.5.0",
+    "camelcase": "^8.0.0",
     "csv-simple-parser": "^2.0.2",
     "file-saver": "^2.0.5",
     "flowbite": "^3.1.1",
