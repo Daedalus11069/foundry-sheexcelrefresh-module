@@ -255,12 +255,11 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
     data.hideMenu = this.actor.getFlag("sheexcelrefresh", "hideMenu") || true;
     data.sidebarCollapsed = this._sidebarCollapsed;
     data.activeTab = this._activeTab;
-    data.cellReferences = this._cellReferences;
     data.sheetNames = this._sheetNames.length > 1 ? this._sheetNames : null;
     data.currentSheetName = this._currentSheetName;
     data.sheetId = this._sheetId;
-    data.adjustedReferences = this._cellReferences.slice(0);
-    data.ranges = this._ranges.slice(0);
+    data.cellReferences = this._cellReferences || [];
+    data.ranges = this._ranges || [];
     return data;
   }
 
@@ -363,7 +362,6 @@ class SheexcelActorSheet extends VueSheet(ActorSheet) {
       activeTab: this._activeTab,
       cellReferences: this._cellReferences,
       ranges: this._ranges,
-      adjustedRanges: this._adjustedRanges,
       currentSheetName: this._currentSheetName,
       sheetName: this._currentSheetName,
       sheetNames: this._sheetNames

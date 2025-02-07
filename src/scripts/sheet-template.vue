@@ -138,7 +138,7 @@
         <div class="sheexcel-references-container">
           <h3>{{ localize("SHEEXCELREFRESH.References.References") }}</h3>
           <SheexcelCellReferences
-            v-model="adjustedReferences"
+            v-model="cellReferences"
             v-model:system="system"
             :sheetNames
           />
@@ -230,7 +230,7 @@ const currentSheetName = ref(data.value.currentSheetName);
 const hideMenu = ref(data.value.hideMenu);
 const sidebarCollapsed = ref(data.value.sidebarCollapsed);
 const zoomLevel = ref(data.value.zoomLevel);
-const adjustedReferences = ref(data.value.adjustedReferences);
+const cellReferences = ref(data.value.cellReferences);
 const ranges = ref(data.value.ranges);
 const system = ref(
   foundry.utils.duplicate(actorSheet.actor.system.sheexcelrefresh)
@@ -277,11 +277,16 @@ const onUpdateSheet = async () => {
 };
 
 const saveData = async () => {
-  actorSheet._sheetId = sheetId.value;
-  actorSheet._currentSheetName = currentSheetName.value;
-  actorSheet._sheetNames = sheetNames.value;
-  actorSheet._sidebarCollapsed = sidebarCollapsed.value;
   actorSheet._activeTab = activeTab.value;
+  actorSheet._sheetId = sheetId.value;
+  actorSheet._sheetUrl = sheetUrl.value;
+  actorSheet._sheetNames = sheetNames.value;
+  actorSheet._currentSheetName = currentSheetName.value;
+  actorSheet._hideMenu = hideMenu.value;
+  actorSheet._sidebarCollapsed = sidebarCollapsed.value;
+  actorSheet._zoomLevel = zoomLevel.value;
+  actorSheet._cellReferences = cellReferences.value;
+  actorSheet._ranges = ranges.value;
   await actorSheet._saveFlags();
   await actorSheet.actor.update({ "system.sheexcelrefresh": system.value });
 };
@@ -296,7 +301,7 @@ const onExportConfig = () => {
     hideMenu,
     sidebarCollapsed,
     zoomLevel,
-    adjustedReferences,
+    cellReferences,
     ranges
   });
   const blob = new Blob([JSON.stringify(config)], {
@@ -317,7 +322,7 @@ onChange(async fileList => {
     hideMenu.value = configData.hideMenu;
     sidebarCollapsed.value = configData.sidebarCollapsed;
     zoomLevel.value = configData.zoomLevel;
-    adjustedReferences.value = configData.adjustedReferences;
+    cellReferences.value = configData.cellReferences;
     ranges.value = configData.ranges;
 
     await saveData();
