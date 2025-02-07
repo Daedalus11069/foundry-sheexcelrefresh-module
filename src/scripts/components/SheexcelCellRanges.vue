@@ -90,7 +90,13 @@
                   </select>
                 </div>
               </div>
-              <div class="basis-4/12 ms-8"></div>
+
+              <div class="basis-4/12 ms-8 pe-[0.1rem]">
+                <button type="button" @click="onDuplicateRange(rangeIdx)">
+                  {{ localize("SHEEXCELREFRESH.Ranges.Duplicate") }}
+                  {{ localize("SHEEXCELREFRESH.Ranges.Range") }}
+                </button>
+              </div>
             </div>
             <div>
               <label>{{ localize("SHEEXCELREFRESH.Ranges.Headers") }}</label>
@@ -271,12 +277,13 @@
 
 <script setup>
 import { inject, onMounted, onUnmounted } from "vue";
-import { VueDraggable } from "vue-draggable-plus";
-import { vMaska } from "maska/vue";
-import { nanoid } from "nanoid";
-import { initFlowbite } from "flowbite";
-import { localize } from "../../libs/vue/VueHelpers";
 import { promiseTimeout } from "@vueuse/core";
+import { VueDraggable } from "vue-draggable-plus";
+import { cloneDeep } from "lodash-es";
+import { vMaska } from "maska/vue";
+import { initFlowbite } from "flowbite";
+import { nanoid } from "../../libs/nanoid";
+import { localize } from "../../libs/vue/VueHelpers";
 
 const actorSheet = inject("actorSheet");
 
@@ -296,6 +303,24 @@ const onAddRange = async () => {
   });
   await promiseTimeout(0);
   initFlowbite();
+};
+
+const onDuplicateRange = async idx => {
+  if (
+    window.confirm(
+      localize("SHEEXCELREFRESH.DoYouWantTo", {
+        action: localize("SHEEXCELREFRESH.Ranges.Duplicate").toLowerCase(),
+        thing: localize("SHEEXCELREFRESH.Ranges.Range").toLowerCase()
+      })
+    )
+  ) {
+    const range = cloneDeep(ranges.value[idx]);
+    range.id = nanoid();
+    range.name += idx + 1;
+    ranges.value.push(range);
+    await promiseTimeout(0);
+    initFlowbite();
+  }
 };
 
 const onRemoveRange = idx => {

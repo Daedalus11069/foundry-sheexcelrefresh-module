@@ -19,6 +19,7 @@
       "Ranges": "Ranges",
       "CellRange": "Cell Range",
       "Sheet": "Sheet",
+      "Duplicate": "Duplicate",
       "Header": "Header",
       "Headers": "Headers",
       "HeaderName": "Name",
@@ -41,6 +42,7 @@
     },
     "Remove": "Remove",
     "AreYouSure": "Are you sure you want to remove this {thing}?\nThis action cannot be undone.",
+    "DoYouWantTo": "Are you sure you want to {action} this {thing}?",
     "Settings": "Settings",
     "Warn": {
       "NoSheetURL": "No sheet URL set."
