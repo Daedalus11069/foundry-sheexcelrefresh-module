@@ -276,6 +276,16 @@ const onUpdateSheet = async () => {
   actorSheet._sheetUrl = sheetUrl.value;
 };
 
+const saveData = async () => {
+  actorSheet._sheetId = sheetId.value;
+  actorSheet._currentSheetName = currentSheetName.value;
+  actorSheet._sheetNames = sheetNames.value;
+  actorSheet._sidebarCollapsed = sidebarCollapsed.value;
+  actorSheet._activeTab = activeTab.value;
+  await actorSheet._saveFlags();
+  await actorSheet.actor.update({ "system.sheexcelrefresh": system.value });
+};
+
 const onExportConfig = () => {
   const config = deepUnref({
     activeTab,
@@ -310,6 +320,8 @@ onChange(async fileList => {
     adjustedReferences.value = configData.adjustedReferences;
     ranges.value = configData.ranges;
 
+    await saveData();
+
     await promiseTimeout(0);
     initFlowbite();
   } catch (e) {
@@ -327,13 +339,7 @@ onMounted(() => {
 });
 
 onUnmounted(async () => {
-  actorSheet._sheetId = sheetId.value;
-  actorSheet._currentSheetName = currentSheetName.value;
-  actorSheet._sheetNames = sheetNames.value;
-  actorSheet._sidebarCollapsed = sidebarCollapsed.value;
-  actorSheet._activeTab = activeTab.value;
-  await actorSheet._saveFlags();
-  await actorSheet.actor.update({ "system.sheexcelrefresh": system.value });
+  await saveData();
 });
 </script>
 
