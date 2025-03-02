@@ -325,7 +325,7 @@ onChange(async fileList => {
   } catch (e) {
     ui.notifications.error(
       localize("SHEEXCELREFRESH.Error.FailedLoadingConfig", {
-        actor: actor.name,
+        actor: localize("SHEEXCELREFRESH.GlobalSettingsMenu.Name"),
         error: e.message
       })
     );
