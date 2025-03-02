@@ -306,7 +306,7 @@ const limitToCellReferences = computed(() => {
 });
 
 const { open, onChange } = useFileDialog({
-  accept: "*.json",
+  accept: "application/json",
   multiple: false
 });
 

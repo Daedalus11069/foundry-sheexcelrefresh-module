@@ -231,7 +231,7 @@ const cellReferences = ref(data.value.cellReferences);
 const ranges = ref(data.value.ranges);
 
 const { open, onChange } = useFileDialog({
-  accept: "*.json",
+  accept: "application/json",
   multiple: false
 });
 
