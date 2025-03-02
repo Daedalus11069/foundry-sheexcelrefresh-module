@@ -209,7 +209,11 @@
             <span>{{ localize("SHEEXCELREFRESH.HideMenu") }}</span>
           </div>
           <div class="sheexcel-settings-container" v-if="isGM">
-            <input type="checkbox" v-model="allowOverride" />
+            <input
+              type="checkbox"
+              v-model="allowOverride"
+              @change="onUpdateOverridableReferences"
+            />
             <span>{{ localize("SHEEXCELREFRESH.AllowOverride") }}</span>
           </div>
           <div
@@ -255,7 +259,7 @@ const isGM = computed(() => game.user.isGM);
 
 const data = ref(actorSheet.getData());
 const localConfigAllowed = ref(
-  game.settings.get("sheexcelrefresh", "individualConfigAlllowed") || false
+  game.settings.get("sheexcelrefresh", "individualConfigAllowed") || false
 );
 const globalOverrideAllowed = ref(
   game.settings.get("sheexcelrefresh", "individualOverrideAllowed") ||
@@ -339,6 +343,28 @@ const onUpdateSheet = async () => {
   }
 
   actorSheet._sheetUrl = sheetUrl.value;
+};
+
+const onUpdateOverridableReferences = () => {
+  if (limitToCellReferences.value) {
+    overridableReferences.value = overridableReferenceKeys
+      .filter(
+        key =>
+          cellReferences.value.findIndex(
+            reference => reference.keyword === key
+          ) >= 0
+      )
+      .map(key => {
+        const reference = data.value.overridableCellReferences.find(
+          reference => reference.keyword === key
+        );
+        if (typeof reference !== "undefined") {
+          return cloneDeep(reference);
+        }
+        return;
+      })
+      .filter(reference => !!reference);
+  }
 };
 
 const saveData = async () => {

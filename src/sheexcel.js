@@ -5,7 +5,6 @@ import { stringToIdentifier } from "./libs/utils";
 import SheexcelActorSheet from "./SheexcelActorSheet";
 import SheexcelGlobalConfigForm from "./SheexcelGlobalConfigForm";
 import SheexcelOverridableReferencesForm from "./SheexcelOverridableReferencesForm";
-import { over } from "lodash-es";
 
 Hooks.once("init", async function () {
   game.settings.registerMenu("sheexcelrefresh", "GlobalConfigMenu", {
@@ -24,7 +23,7 @@ Hooks.once("init", async function () {
     restricted: true
   });
 
-  game.settings.register("sheexcelrefresh", "individualConfigAlllowed", {
+  game.settings.register("sheexcelrefresh", "individualConfigAllowed", {
     scope: "world",
     config: true,
     name: "SHEEXCELREFRESH.IndividualConfig.AllowedName",
@@ -70,14 +69,14 @@ Hooks.once("init", async function () {
   });
 
   Actors.registerSheet("sheexcelrefresh", SheexcelActorSheet, {
-    label: "Sheexcel",
+    label: "SHEEXCELREFRESH.SheetLabel",
     types: ["character", "npc", "creature", "vehicle"],
     makeDefault: false
   });
 
   Actor.prototype._getSheexcelConfig = function (keys) {
     const localConfigAllowed =
-      game.settings.get("sheexcelrefresh", "individualConfigAlllowed") || false;
+      game.settings.get("sheexcelrefresh", "individualConfigAllowed") || false;
 
     const globalConfig =
       game.settings.get("sheexcelrefresh", "globalConfig") || {};
@@ -110,7 +109,33 @@ Hooks.once("init", async function () {
     originalPrepareData.call(this);
 
     this.system.sheexcelrefresh = {};
-    for (const ref of this.getFlag("sheexcelrefresh", "cellReferences") || []) {
+    const { cellReferences } = this._getSheexcelConfig({
+      cellReferences: []
+    });
+    const individualOverrideAllowed =
+      game.settings.get("sheexcelrefresh", "individualOverrideAllowed") ||
+      false;
+    const allowOverride =
+      this.getFlag("sheexcelrefresh", "allowOverride") || false;
+    const overrideKeys =
+      game.settings.get("sheexcelrefresh", "overridableReferenceKeys") || [];
+    const overrides =
+      this.getFlag("sheexcelrefresh", "overridableCellReferences") || [];
+
+    if (individualOverrideAllowed || allowOverride) {
+      for (const overrideKey of overrideKeys) {
+        const override = overrides.find(ov => ov.keyword === overrideKey);
+        const refIdx = cellReferences.findIndex(
+          cr => cr.keyword === overrideKey
+        );
+        if (typeof override !== "undefined" && refIdx >= 0) {
+          cellReferences[refIdx].cell = override.cell;
+          cellReferences[refIdx].sheet = override.sheet;
+          cellReferences[refIdx].value = override.value;
+        }
+      }
+    }
+    for (const ref of cellReferences) {
       if (ref.keyword && ref.keyword !== "" && ref.value !== undefined) {
         this.system.sheexcelrefresh[ref.keyword] = ref.value;
       }

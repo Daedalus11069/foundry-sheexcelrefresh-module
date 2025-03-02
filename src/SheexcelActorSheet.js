@@ -1,3 +1,4 @@
+import { cloneDeep } from "lodash-es";
 import VueSheet from "./libs/vue/VueSheet";
 import VueSheetTemplate from "./scripts/SheetTemplate.vue";
 
@@ -21,7 +22,11 @@ export default class SheexcelActorSheet extends VueSheet(ActorSheet) {
     this._cellReferences =
       this.actor.getFlag("sheexcelrefresh", "cellReferences") || [];
     this._overridableCellReferences =
-      this.actor.getFlag("sheexcelrefresh", "overridableCellReferences") || [];
+      this.actor.getFlag("sheexcelrefresh", "overridableCellReferences") ||
+      this._generateDefaultOverrides();
+    if (this._overridableCellReferences.length === 0) {
+      this._overridableCellReferences = this._generateDefaultOverrides();
+    }
     this._ranges = this.actor.getFlag("sheexcelrefresh", "ranges") || [];
     this._adjustedRanges =
       this.actor.getFlag("sheexcelrefresh", "adjustedRanges") || [];
@@ -57,9 +62,34 @@ export default class SheexcelActorSheet extends VueSheet(ActorSheet) {
     data.currentSheetName = this._currentSheetName;
     data.sheetId = this._sheetId;
     data.cellReferences = this._cellReferences || [];
-    data.overridableCellReferences = this._overridableCellReferences || [];
+    data.overridableCellReferences =
+      this._overridableCellReferences || this._generateDefaultOverrides();
+    if (data.overridableCellReferences.length === 0) {
+      data.overridableCellReferences = this._generateDefaultOverrides();
+    }
     data.ranges = this._ranges || [];
     return data;
+  }
+
+  _generateDefaultOverrides() {
+    const cellReferences = this._cellReferences;
+    const overridableReferenceKeys =
+      game.settings.get("sheexcelrefresh", "overridableReferenceKeys") || [];
+    return overridableReferenceKeys
+      .filter(
+        key =>
+          cellReferences.findIndex(reference => reference.keyword === key) >= 0
+      )
+      .map(key => {
+        const reference = cellReferences.find(
+          reference => reference.keyword === key
+        );
+        if (typeof reference !== "undefined") {
+          return cloneDeep(reference);
+        }
+        return;
+      })
+      .filter(reference => !!reference);
   }
 
   async _refetchAllCellValues() {

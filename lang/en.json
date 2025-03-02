@@ -1,5 +1,6 @@
 {
   "SHEEXCELREFRESH": {
+    "SheetLabel": "Sheexcel Refresh",
     "GlobalSettingsMenu": {
       "Name": "Global Config",
       "Label": "Global Configuration"
