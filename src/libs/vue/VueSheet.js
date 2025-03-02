@@ -64,7 +64,7 @@ export default function VueSheet(base) {
       if (!this.vueApp) {
         this.vueApp = createApp(this.vueComponent);
         this.vueApp.provide(RootContext, this.vueContext);
-        this.vueApp.provide("actorSheet", this);
+        this.vueApp.provide("sheet", this);
         this.vueApp.provide("actor", this.actor);
 
         this.vueApp.mount(this.form);

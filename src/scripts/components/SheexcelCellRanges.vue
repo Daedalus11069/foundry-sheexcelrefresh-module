@@ -16,7 +16,7 @@
               type="button"
               class="flex flex-row items-center justify-between w-full p-1 px-4 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3"
               :data-accordion-target="`#${range.id}-collapse-body`"
-              aria-expanded="true"
+              aria-expanded="false"
             >
               <span>{{ range.name || "&lt;insert name&gt;" }}</span>
               <svg
@@ -309,7 +309,7 @@ import { initFlowbite } from "flowbite";
 import { nanoid } from "../../libs/nanoid";
 import { localize } from "../../libs/vue/VueHelpers";
 
-const actorSheet = inject("actorSheet");
+const actorSheet = inject("sheet");
 
 const props = defineProps({
   sheetNames: Array

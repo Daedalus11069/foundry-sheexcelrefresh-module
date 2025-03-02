@@ -7,6 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import generateFile from "vite-plugin-generate-file";
 import zipPack from "vite-plugin-zip-pack";
+import colors from "picocolors";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -54,13 +55,6 @@ export default defineConfig({
       ].join("|") +
       ")"]: "http://localhost:30000",
 
-      // [`^/modules/${ModuleData.id}/src/`]: {
-      //   target: "http://localhost:30001",
-      //   rewrite: path => {
-      //     return path.replace(`/modules/${ModuleData.id}`, "");
-      //   }
-      // },
-
       // Enable socket.io from main Foundry server.
       "/socket.io": { target: "ws://localhost:30000", ws: true }
     }
@@ -82,13 +76,6 @@ export default defineConfig({
         `modules/${ModuleData.id}/src/`
       ].join("|") +
       ")"]: "http://localhost:30000",
-
-      // [`^/modules/${ModuleData.id}/src/`]: {
-      //   target: "http://localhost:30001",
-      //   rewrite: path => {
-      //     return path.replace(`/modules/${ModuleData.id}`, "");
-      //   }
-      // },
 
       // Enable socket.io from main Foundry server.
       "/socket.io": { target: "ws://localhost:30000", ws: true }
@@ -124,9 +111,8 @@ export default defineConfig({
         ModuleData.version = PackageData.version;
         ModuleData.esmodules = ["scripts/sheexcel.js"];
         ModuleData.styles = ["styles/sheexcel.css"];
-        const downloadUrl =
-          "https://github.com/Daedalus11069/foundry-sheexcelrefresh-module/releases/download";
-        ModuleData.download = `${downloadUrl}/v${PackageData.version}/sheexcelrefresh_${PackageData.version}.zip`;
+        const downloadUrl = `https://github.com/Daedalus11069/foundry-${ModuleData.id}-module/releases/download`;
+        ModuleData.download = `${downloadUrl}/v${PackageData.version}/${ModuleData.id}_${PackageData.version}.zip`;
       }
     },
     generateFile([
@@ -150,6 +136,21 @@ export default defineConfig({
       inDir: "dist",
       outDir: "dist-zip",
       outFileName: `${ModuleData.id}_${PackageData.version}.zip`
-    })
+    }),
+    {
+      name: "UrlPointer",
+      configureServer(server) {
+        const appUrl = `http://localhost:${server.config.server.port}/game`;
+        server.httpServer?.once("listening", () => {
+          setTimeout(() => {
+            server.config.logger.info(
+              `  ${colors.green("➜")}  ${colors.bold("App Url")}: ${colors.cyan(
+                appUrl.replace(/:(\d+)/, (_, port) => `:${colors.bold(port)}`)
+              )}`
+            );
+          }, 100);
+        });
+      }
+    }
   ]
 });

@@ -1,6 +1,6 @@
 {
   "name": "sheexcelrefresh",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "title": "SheExcel Module Refresh",
   "type": "module",
   "main": "index.js",
@@ -30,6 +30,7 @@
     "maska": "^3.1.0",
     "nanoid": "^5.0.9",
     "paraphrase": "^3.1.2",
+    "radix-vue": "^1.9.17",
     "sortablejs": "^1.15.6",
     "tailwindcss": "^4.0.4",
     "udsv": "^0.6.0",
@@ -41,6 +42,7 @@
     "@tailwindcss/vite": "^4.0.3",
     "@vitejs/plugin-vue": "^5.2.1",
     "autoprefixer": "^10.4.20",
+    "picocolors": "^1.1.1",
     "postcss-import": "^16.1.0",
     "sass-embedded": "^1.83.4",
     "vite": "^6.0.1",

@@ -1,7 +1,7 @@
 <template>
   <div class="sheexcel-sheet-container">
     <header class="sheexcel-sheet-header">
-      <h1>{{ actor.name }}</h1>
+      <h1>{{ localize("SHEEXCELREFRESH.GlobalSettingsMenu.Label") }}</h1>
     </header>
     <section class="sheexcel-sheet-body">
       <div class="sheexcel-main-content">
@@ -61,6 +61,7 @@
       </a>
       <a
         :class="{ active: activeTab === 'references' }"
+        :title="localize('SHEEXCELREFRESH.References.CellReferencesTitle')"
         @click="toggleTab('references')"
       >
         <div>
@@ -88,6 +89,7 @@
       </a>
       <a
         :class="{ active: activeTab === 'ranges' }"
+        :title="localize('SHEEXCELREFRESH.Ranges.RangesTitle')"
         @click="toggleTab('ranges')"
       >
         <div class="sheexcel-sheet-tab-icon">
@@ -114,6 +116,7 @@
       </a>
       <a
         :class="{ active: activeTab === 'settings' }"
+        :title="localize('SHEEXCELREFRESH.Settings')"
         @click="toggleTab('settings')"
       >
         <div class="sheexcel-sheet-tab-icon">
@@ -137,11 +140,7 @@
       <div class="sheexcel-sidebar-tab" v-show="activeTab === 'references'">
         <div class="sheexcel-references-container">
           <h3>{{ localize("SHEEXCELREFRESH.References.References") }}</h3>
-          <SheexcelCellReferences
-            v-model="cellReferences"
-            v-model:system="system"
-            :sheetNames
-          />
+          <SheexcelCellReferences v-model="cellReferences" :sheetNames />
         </div>
       </div>
       <div class="sheexcel-sidebar-tab" v-show="activeTab === 'ranges'">
@@ -217,11 +216,9 @@ import SheexcelCellReferences from "./components/SheexcelCellReferences.vue";
 import SheexcelCellRanges from "./components/SheexcelCellRanges.vue";
 import { initFlowbite } from "flowbite";
 
-const actor = inject("actor");
-const actorSheet = inject("actorSheet");
+const settingsSheet = inject("sheet");
 
-const data = ref(actorSheet.getData());
-
+const data = ref(settingsSheet.getData());
 const activeTab = ref(data.value.activeTab);
 const sheetId = ref(data.value.sheetId);
 const sheetUrl = ref(data.value.sheetUrl);
@@ -232,9 +229,6 @@ const sidebarCollapsed = ref(data.value.sidebarCollapsed);
 const zoomLevel = ref(data.value.zoomLevel);
 const cellReferences = ref(data.value.cellReferences);
 const ranges = ref(data.value.ranges);
-const system = ref(
-  foundry.utils.duplicate(actorSheet.actor.system.sheexcelrefresh)
-);
 
 const { open, onChange } = useFileDialog({
   accept: "*.json",
@@ -269,26 +263,27 @@ const onUpdateSheet = async () => {
   );
   if (sheetIdMatch) {
     sheetId.value = sheetIdMatch[1];
-    actorSheet._sheetId = sheetIdMatch[1];
-    await actorSheet._fetchSheetNames();
+    settingsSheet._sheetId = sheetIdMatch[1];
+    await settingsSheet._fetchSheetNames();
   }
 
-  actorSheet._sheetUrl = sheetUrl.value;
+  settingsSheet._sheetUrl = sheetUrl.value;
 };
 
 const saveData = async () => {
-  actorSheet._activeTab = activeTab.value;
-  actorSheet._sheetId = sheetId.value;
-  actorSheet._sheetUrl = sheetUrl.value;
-  actorSheet._sheetNames = sheetNames.value;
-  actorSheet._currentSheetName = currentSheetName.value;
-  actorSheet._hideMenu = hideMenu.value;
-  actorSheet._sidebarCollapsed = sidebarCollapsed.value;
-  actorSheet._zoomLevel = zoomLevel.value;
-  actorSheet._cellReferences = cellReferences.value;
-  actorSheet._ranges = ranges.value;
-  await actorSheet._saveFlags();
-  await actorSheet.actor.update({ "system.sheexcelrefresh": system.value });
+  const config = deepUnref({
+    activeTab,
+    sheetId,
+    sheetUrl,
+    sheetNames,
+    currentSheetName,
+    hideMenu,
+    sidebarCollapsed,
+    zoomLevel,
+    cellReferences,
+    ranges
+  });
+  settingsSheet._updateObject(config);
 };
 
 const onExportConfig = () => {
@@ -325,8 +320,6 @@ onChange(async fileList => {
     cellReferences.value = configData.cellReferences;
     ranges.value = configData.ranges;
 
-    await saveData();
-
     await promiseTimeout(0);
     initFlowbite();
   } catch (e) {
@@ -340,7 +333,8 @@ onChange(async fileList => {
 });
 
 onMounted(() => {
-  data.value = actorSheet.getData();
+  data.value = settingsSheet.getData();
+  initFlowbite();
 });
 
 onUnmounted(async () => {

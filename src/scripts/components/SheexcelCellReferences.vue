@@ -1,6 +1,6 @@
 <template>
   <div class="sheexcel-references" ref="referencesEl">
-    <div class="sheexcel-cellReference">
+    <div class="sheexcel-cellReference" v-if="!limitToCellReferences">
       <div
         class="sheexcel-reference-cell"
         v-for="(ref, idx) in model"
@@ -50,10 +50,46 @@
           </button>
         </div>
       </div>
-      <div class="sheexcel-references-add">
+      <div class="sheexcel-references-add" v-if="!limitToCellReferences">
         <button type="button" @click.stop="onAddReference">
           {{ localize("SHEEXCELREFRESH.References.AddReference") }}
         </button>
+      </div>
+    </div>
+    <div class="sheexcel-cellReference" v-if="limitToCellReferences">
+      <div
+        class="sheexcel-reference-cell"
+        v-for="(ref, _idx) in overridableReferences"
+        ref="referenceEls"
+      >
+        <input
+          class="sheexcel-cell"
+          type="text"
+          v-model="ref.cell"
+          :placeholder="localize('SHEEXCELREFRESH.References.Cell')"
+          @input.prevent.stop="onOverridableCellReferenceChange(ref)"
+        />
+        <span class="sheexcel-keyword px-2">{{ ref.keyword }}</span>
+        <span class="sheexcel-reference-remove-value">{{ ref.value }}</span>
+        <div v-show="sheetNames.length > 1">
+          <select
+            class="sheexcel-sheet"
+            name="sheet"
+            v-model="ref.sheet"
+            @change.prevent.stop="onOverridableCellReferenceChange(ref)"
+          >
+            <option
+              :value="sheetName"
+              v-for="sheetName in sheetNames"
+              :selected="sheetName === ref.sheet"
+            >
+              {{ sheetName }}
+            </option>
+          </select>
+        </div>
+        <div v-show="sheetNames.length < 1">
+          <span>{{ ref.sheet }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -63,13 +99,18 @@
 import { inject, nextTick, ref, useTemplateRef } from "vue";
 import { localize } from "../../libs/vue/VueHelpers";
 
-const actorSheet = inject("actorSheet");
+const actorSheet = inject("sheet");
 
 const props = defineProps({
-  sheetNames: Array
+  sheetNames: { type: Array, required: false },
+  limitToCellReferences: {
+    type: Boolean,
+    default: false
+  }
 });
 const model = defineModel();
-const system = defineModel("system");
+const system = defineModel("system", { required: false });
+const overridableReferences = defineModel("overridableReferences");
 
 const referenceElms = useTemplateRef("referenceEls");
 const referencesElm = useTemplateRef("referencesEl");
@@ -94,22 +135,47 @@ const onRemoveReference = async idx => {
   }
 };
 
-const onCellReferenceChange = async (index, currentRef) => {
-  if (
-    actorSheet._cellReferences[index].cell &&
-    actorSheet._cellReferences[index].cell.length &&
-    actorSheet._cellReferences[index].sheet
-  ) {
-    actorSheet._cellReferences[index].value = await actorSheet._fetchCellValue(
-      actorSheet._sheetId,
-      actorSheet._cellReferences[index].sheet,
-      actorSheet._cellReferences[index].cell
-    );
+const onCellReferenceChange = async idx => {
+  if (system.value) {
+    if (
+      typeof actorSheet._cellReferences[idx] !== "undefined" &&
+      actorSheet._cellReferences[idx].cell &&
+      actorSheet._cellReferences[idx].cell.length &&
+      actorSheet._cellReferences[idx].sheet
+    ) {
+      actorSheet._cellReferences[idx].value = await actorSheet._fetchCellValue(
+        actorSheet._sheetId,
+        actorSheet._cellReferences[idx].sheet,
+        actorSheet._cellReferences[idx].cell
+      );
+    }
+    if (typeof actorSheet._cellReferences[idx] !== "undefined") {
+      const ref = system.value;
+      ref[actorSheet._cellReferences[idx].keyword] =
+        actorSheet._cellReferences[idx].value;
+    }
   }
-  const ref = system.value;
-  ref[actorSheet._cellReferences[index].keyword] =
-    actorSheet._cellReferences[index].value;
-  currentRef.value = actorSheet._cellReferences[index].value;
+};
+
+const onOverridableCellReferenceChange = async currentRef => {
+  if (system.value) {
+    if (
+      typeof currentRef !== "undefined" &&
+      currentRef.cell &&
+      currentRef.cell.length &&
+      currentRef.sheet
+    ) {
+      currentRef.value = await actorSheet._fetchCellValue(
+        actorSheet._sheetId,
+        currentRef.sheet,
+        currentRef.cell
+      );
+    }
+    if (typeof currentRef !== "undefined") {
+      const ref = system.value;
+      ref[currentRef.keyword] = currentRef.value;
+    }
+  }
 };
 
 const onKeywordReferenceChange = index => {
@@ -119,7 +185,7 @@ const onKeywordReferenceChange = index => {
 };
 
 const onAddReference = async () => {
-  actorSheet._fetchSheetNames();
+  await actorSheet._fetchSheetNames();
   model.value.push({
     sheet: actorSheet._currentSheetName,
     cell: "",
