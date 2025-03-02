@@ -11,7 +11,7 @@
       "name": "Daedalus11069"
     }
   ],
-  "version": "0.4.4",
+  "version": "0.5.0",
   "compatibility": {
     "minimum": "11",
     "verified": "11",
@@ -32,5 +32,5 @@
   "styles": [
     "styles/sheexcel.css"
   ],
-  "download": "https://github.com/Daedalus11069/foundry-sheexcelrefresh-module/releases/download/v0.4.4/sheexcelrefresh_0.4.4.zip"
+  "download": "https://github.com/Daedalus11069/foundry-sheexcelrefresh-module/releases/download/v0.5.0/sheexcelrefresh_0.5.0.zip"
 }
