@@ -1,6 +1,6 @@
 {
   "name": "sheexcelrefresh",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "title": "SheExcel Module Refresh",
   "type": "module",
   "main": "index.js",

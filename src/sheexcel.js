@@ -104,50 +104,55 @@ Hooks.once("init", async function () {
     return returnData;
   };
 
-  const originalPrepareData = Actor.prototype.prepareData;
-  Actor.prototype.prepareData = function () {
-    originalPrepareData.call(this);
+  // This module has a conflict with my systemmod module; if this code is
+  // present while systemmod is active, there's a race condition that must
+  // be accounted for.
+  if (typeof game.modules.get("systemmod") === "undefined") {
+    const originalPrepareData = Actor.prototype.prepareData;
+    Actor.prototype.prepareData = function () {
+      originalPrepareData.call(this);
 
-    this.system.sheexcelrefresh = {};
-    const { cellReferences } = this._getSheexcelConfig({
-      cellReferences: []
-    });
-    const individualOverrideAllowed =
-      game.settings.get("sheexcelrefresh", "individualOverrideAllowed") ||
-      false;
-    const allowOverride =
-      this.getFlag("sheexcelrefresh", "allowOverride") || false;
-    const overrideKeys =
-      game.settings.get("sheexcelrefresh", "overridableReferenceKeys") || [];
-    const overrides =
-      this.getFlag("sheexcelrefresh", "overridableCellReferences") || [];
+      this.system.sheexcelrefresh = {};
+      const { cellReferences } = this._getSheexcelConfig({
+        cellReferences: []
+      });
+      const individualOverrideAllowed =
+        game.settings.get("sheexcelrefresh", "individualOverrideAllowed") ||
+        false;
+      const allowOverride =
+        this.getFlag("sheexcelrefresh", "allowOverride") || false;
+      const overrideKeys =
+        game.settings.get("sheexcelrefresh", "overridableReferenceKeys") || [];
+      const overrides =
+        this.getFlag("sheexcelrefresh", "overridableCellReferences") || [];
 
-    if (individualOverrideAllowed || allowOverride) {
-      for (const overrideKey of overrideKeys) {
-        const override = overrides.find(ov => ov.keyword === overrideKey);
-        const refIdx = cellReferences.findIndex(
-          cr => cr.keyword === overrideKey
-        );
-        if (typeof override !== "undefined" && refIdx >= 0) {
-          cellReferences[refIdx].cell = override.cell;
-          cellReferences[refIdx].sheet = override.sheet;
-          cellReferences[refIdx].value = override.value;
+      if (individualOverrideAllowed || allowOverride) {
+        for (const overrideKey of overrideKeys) {
+          const override = overrides.find(ov => ov.keyword === overrideKey);
+          const refIdx = cellReferences.findIndex(
+            cr => cr.keyword === overrideKey
+          );
+          if (typeof override !== "undefined" && refIdx >= 0) {
+            cellReferences[refIdx].cell = override.cell;
+            cellReferences[refIdx].sheet = override.sheet;
+            cellReferences[refIdx].value = override.value;
+          }
         }
       }
-    }
-    for (const ref of cellReferences) {
-      if (ref.keyword && ref.keyword !== "" && ref.value !== undefined) {
-        this.system.sheexcelrefresh[ref.keyword] = ref.value;
+      for (const ref of cellReferences) {
+        if (ref.keyword && ref.keyword !== "" && ref.value !== undefined) {
+          this.system.sheexcelrefresh[ref.keyword] = ref.value;
+        }
       }
-    }
-    const adjustedRanges =
-      this.getFlag("sheexcelrefresh", "adjustedRanges") || [];
-    for (const { name, data } of adjustedRanges) {
-      if (name !== "") {
-        this.system.sheexcelrefresh[name] = data;
+      const adjustedRanges =
+        this.getFlag("sheexcelrefresh", "adjustedRanges") || [];
+      for (const { name, data } of adjustedRanges) {
+        if (name !== "") {
+          this.system.sheexcelrefresh[name] = data;
+        }
       }
-    }
-  };
+    };
+  }
 
   Actor.prototype._fetchCellValues = async function (cells = {}) {
     const sheetId = this.getFlag("sheexcelrefresh", "sheetId");
@@ -253,13 +258,9 @@ Hooks.once("init", async function () {
         }
       }
 
-      await this.setFlag(
-        "sheexcelrefresh",
-        "cellReferences",
-        updatedReferences
-      );
       await this.update({
-        "system.sheexcelrefresh": sheexcelData
+        "flags.sheexcelrefresh.cellReferences": updatedReferences,
+        "flags.sheexcelrefresh.temp.cellData": sheexcelData
       });
     }
   };
@@ -341,11 +342,21 @@ Hooks.once("init", async function () {
         adjustedRanges.push({ name, data: data[name] });
       }
 
-      await this.setFlag("sheexcelrefresh", "adjustedRanges", adjustedRanges);
       await this.update({
-        "system.sheexcelrefresh": sheexcelData
+        "flags.sheexcelrefresh.adjustedRanges": adjustedRanges,
+        "flags.sheexcelrefresh.temp.rangeData": sheexcelData
       });
     }
+  };
+
+  Actor.prototype._refreshSystemValues = async function () {
+    const { cellData, rangeData } = this.flags.sheexcelrefresh.temp;
+    await this.update({
+      "system.sheexcelrefresh": {
+        ...cellData,
+        ...rangeData
+      }
+    });
   };
 
   Actor.prototype.refreshSheexcelData = async function (
@@ -353,6 +364,7 @@ Hooks.once("init", async function () {
   ) {
     await this.refreshCellValues(cellKeywords);
     await this.refreshRangeValues(rangeNames);
+    await this._refreshSystemValues();
   };
 
   game.sheexcelrefresh = {
