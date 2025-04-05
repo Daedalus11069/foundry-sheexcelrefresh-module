@@ -299,7 +299,7 @@ const overridableReferences = ref(
 );
 const ranges = ref(data.value.ranges);
 const system = ref(
-  foundry.utils.duplicate(actorSheet.actor.system.sheexcelrefresh)
+  foundry.utils.duplicate(actorSheet.actor.system.sheexcelrefresh || {})
 );
 const limitToCellReferences = computed(() => {
   return globalOverrideAllowed.value || allowOverride.value || false;

@@ -58,7 +58,8 @@ export default class SheexcelActorSheet extends VueSheet(ActorSheet) {
       this.actor.getFlag("sheexcelrefresh", "allowOverride") || false;
     data.sidebarCollapsed = this._sidebarCollapsed;
     data.activeTab = this._activeTab;
-    data.sheetNames = this._sheetNames.length > 1 ? this._sheetNames : null;
+    data.sheetNames =
+      (this._sheetNames?.length || 0) > 1 ? this._sheetNames : null;
     data.currentSheetName = this._currentSheetName;
     data.sheetId = this._sheetId;
     data.cellReferences = this._cellReferences || [];
